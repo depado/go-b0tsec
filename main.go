@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/thoj/go-ircevent"
+	"regexp"
 	"strings"
 )
 
@@ -12,6 +13,7 @@ const (
 )
 
 func main() {
+	r, _ := regexp.Compile("^https?:.*(jpg|png|gif)$")
 	ircbot := irc.IRC(botname, botname)
 	ircbot.Connect(server)
 
@@ -23,10 +25,17 @@ func main() {
 		nick := e.Nick
 		message := e.Message()
 		sent_to := e.Arguments[0]
+
+		for _, field := range strings.Fields(message) {
+			if r.MatchString(field) {
+				go CheckNSFW(ircbot, field)
+			}
+		}
+
 		if strings.HasPrefix(message, "!") {
 			commandArray := strings.Fields(message[1:])
 			command := commandArray[0]
-			if commandCallback, ok := commandMapping[command]; ok {
+			if commandCallback, ok := CommandMapping[command]; ok {
 				if len(commandArray) > 1 {
 					commandCallback(ircbot, nick, channel, sent_to == channel, commandArray[1:])
 				} else {
