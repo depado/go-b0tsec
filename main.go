@@ -6,19 +6,16 @@ import (
 	"strings"
 )
 
-const (
-	server  = "irc.freenode.net:6667"
-	channel = "#n0sec"
-	botname = "gob0tsec"
-)
-
 func main() {
 	r, _ := regexp.Compile("^https?:.*(jpg|png|gif)$")
-	ircbot := irc.IRC(botname, botname)
-	ircbot.Connect(server)
+
+	LoadConfiguration()
+
+	ircbot := irc.IRC(Config.BotName, Config.BotName)
+	ircbot.Connect(Config.Server)
 
 	ircbot.AddCallback("001", func(e *irc.Event) {
-		ircbot.Join(channel)
+		ircbot.Join(Config.Channel)
 	})
 
 	ircbot.AddCallback("PRIVMSG", func(e *irc.Event) {
@@ -33,13 +30,17 @@ func main() {
 		}
 
 		if strings.HasPrefix(message, "!") {
-			commandArray := strings.Fields(message[1:])
-			command := commandArray[0]
-			if commandCallback, ok := CommandMapping[command]; ok {
-				if len(commandArray) > 1 {
-					commandCallback(ircbot, nick, channel, sent_to == channel, commandArray[1:])
-				} else {
-					commandCallback(ircbot, nick, channel, sent_to == channel)
+			if len(message) > 1 {
+				commandArray := strings.Fields(message[1:])
+				command := commandArray[0]
+				if commandCallback, ok := CommandMapping[command]; ok {
+					if len(commandArray) > 1 {
+						commandCallback(ircbot, nick, sent_to == Config.Channel, commandArray[1:])
+					} else {
+						commandCallback(ircbot, nick, sent_to == Config.Channel)
+					}
+				} else if reponse, ok := BasicsWithNickname[command]; ok {
+					ircbot.Privmsgf(Config.Channel, "%v %v", nick, reponse)
 				}
 			}
 		}

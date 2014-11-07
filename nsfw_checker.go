@@ -41,6 +41,6 @@ func CheckNSFW(ircbot *irc.Connection, url string) {
 		return
 	}
 	if isNude {
-		ircbot.Privmsgf(channel, "%v is NSFW", url)
+		ircbot.Privmsgf(Config.Channel, "%v is NSFW", url)
 	}
 }
