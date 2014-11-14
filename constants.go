@@ -34,10 +34,3 @@ var EightBallAnswers = [...]string{
 	"Outlook not so good",
 	"Very doubtful",
 }
-
-var BasicsWithNickname = map[string]string{
-	"nom":    "is going to eat.",
-	"smoke":  "is going to smoke.",
-	"drug":   "is going to smoke a big joint.",
-	"coffee": "is going to drink a coffee.",
-}

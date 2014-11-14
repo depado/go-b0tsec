@@ -39,8 +39,10 @@ func main() {
 					} else {
 						commandCallback(ircbot, nick, sent_to == Config.Channel)
 					}
-				} else if reponse, ok := BasicsWithNickname[command]; ok {
-					ircbot.Privmsgf(Config.Channel, "%v %v", nick, reponse)
+				} else if response, ok := BasicsWithNickname[command]; ok {
+					BasicCommandFormat(ircbot, nick, response)
+				} else if generic, ok := GenericCommandMapping[command]; ok {
+					GenericCommandFormat(ircbot, nick, sent_to == Config.Channel, generic, commandArray[1:])
 				}
 			}
 		}
