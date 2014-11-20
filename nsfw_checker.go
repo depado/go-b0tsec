@@ -1,37 +1,15 @@
 package main
 
 import (
+	"github.com/depado/go-b0tsec/utils"
 	"github.com/koyachi/go-nude"
 	"github.com/thoj/go-ircevent"
-	"io"
-	"net/http"
 	"os"
-	"strings"
 )
-
-// Download a file and write to disk
-func DownloadFile(url string) (string, error) {
-	splittedFileName := strings.Split(url, "/")
-	fileName := splittedFileName[len(splittedFileName)-1]
-	output, err := os.Create(fileName)
-	if err != nil {
-		return "", err
-	}
-	defer output.Close()
-	response, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-	if _, err := io.Copy(output, response.Body); err != nil {
-		return "", err
-	}
-	return fileName, nil
-}
 
 // Check for NSFW Content
 func CheckNSFW(ircbot *irc.Connection, url string) {
-	fileName, err := DownloadFile(url)
+	fileName, err := utils.DownloadFile(url)
 	if err != nil {
 		return
 	}

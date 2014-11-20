@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/depado/go-b0tsec/contentmanager"
 	"github.com/thoj/go-ircevent"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -10,6 +12,9 @@ func main() {
 	r, _ := regexp.Compile("^https?:.*(jpg|png|gif)$")
 
 	LoadConfiguration()
+	if err := contentmanager.LoadAndStartExternalResources(); err != nil {
+		log.Println("Error Starting External Resources : ", err)
+	}
 
 	ircbot := irc.IRC(Config.BotName, Config.BotName)
 	ircbot.Connect(Config.Server)
