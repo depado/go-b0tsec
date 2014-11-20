@@ -85,7 +85,7 @@ var GenericCommandMapping = map[string]GenericCommand{
 }
 
 func GenericCommandFormat(ircbot *irc.Connection, nick string, general bool, generic GenericCommand, arguments ...[]string) {
-	if len(arguments) > 0 {
+	if len(arguments[0]) > 0 {
 		ircbot.Privmsgf(Config.Channel, generic.WithTargets, nick, GenerateTargetString(arguments[0]))
 	} else {
 		ircbot.Privmsgf(Config.Channel, generic.NoTargets, nick)
