@@ -15,7 +15,7 @@ type Configuration struct {
 var Config = new(Configuration)
 
 func LoadConfiguration() {
-	conf, err := ioutil.ReadFile("conf.yml")
+	conf, err := ioutil.ReadFile("conf/conf.yml")
 	if err != nil {
 		log.Fatalf("Could not read configuration : %v", err)
 	}

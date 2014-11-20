@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	configurationFolder = "contentmanager/active/"
+	configurationFolder = "conf/external/active/"
 	backupFolder        = "content/backup/"
 	contentFolder       = "content/"
 )
