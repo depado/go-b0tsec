@@ -32,6 +32,13 @@ type UnparsedExternalResource struct {
 	FileName       string
 }
 
+type AvailableExternalResource struct {
+	Resource ExternalResource
+	FullPath string
+}
+
+var AvailableExternalResources = make(map[string]AvailableExternalResource)
+
 func LoadAndStartExternalResources() error {
 	files, err := ioutil.ReadDir(configurationFolder)
 	if err != nil {
@@ -77,16 +84,6 @@ func LoadExternalResourceConfiguration(configPath string) (ExternalResource, err
 	return external, nil
 }
 
-func CheckAndCreateFolder(folderPath string) error {
-	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
-		log.Printf("Could not find %v folder. Creating it.\n", folderPath)
-		os.Mkdir(folderPath, 0777)
-	} else if err != nil {
-		return err
-	}
-	return nil
-}
-
 func CalculateIteration(ext *ExternalResource, backupFolder string) error {
 	files, err := ioutil.ReadDir(backupFolder)
 	if err != nil {
@@ -115,19 +112,20 @@ func CalculateIteration(ext *ExternalResource, backupFolder string) error {
 func PeriodicUpdateExternalResource(ext ExternalResource) {
 	tmpFileName := contentFolder + ext.FileName + ".tmp"
 	currentFileName := contentFolder + ext.FileName
-	specificBackupFolder := backupFolder + ext.FileName[0:len(ext.FileName)-len(filepath.Ext(ext.FileName))] + "/"
+	mapName := ext.FileName[0 : len(ext.FileName)-len(filepath.Ext(ext.FileName))]
+	specificBackupFolder := backupFolder + mapName + "/"
 
-	if err := CheckAndCreateFolder(contentFolder); err != nil {
+	if err := utils.CheckAndCreateFolder(contentFolder); err != nil {
 		log.Println(err)
 		return
 	}
 
-	if err := CheckAndCreateFolder(backupFolder); err != nil {
+	if err := utils.CheckAndCreateFolder(backupFolder); err != nil {
 		log.Println(err)
 		return
 	}
 
-	if err := CheckAndCreateFolder(specificBackupFolder); err != nil {
+	if err := utils.CheckAndCreateFolder(specificBackupFolder); err != nil {
 		log.Println(err)
 		return
 	}
@@ -145,6 +143,8 @@ func PeriodicUpdateExternalResource(ext ExternalResource) {
 	tickChan := time.NewTicker(ext.UpdateInterval).C
 
 	log.Println("Resource Collection Started for", ext.FriendlyName)
+	AvailableExternalResources[mapName] = AvailableExternalResource{ext, currentFileName}
+	log.Printf("Added Available Resource %v as %v\n", ext.FriendlyName, mapName)
 
 	for {
 		<-tickChan

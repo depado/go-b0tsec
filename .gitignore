@@ -1,4 +1,5 @@
 go-b0tsec
-conf/conf.yml
+conf
 user.go
 content
+logs

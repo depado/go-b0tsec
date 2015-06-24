@@ -2,10 +2,22 @@ package utils
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
 )
+
+// Check if a folder exists, if not, create it. Returns an error in case of error and nil otherwise.
+func CheckAndCreateFolder(folderPath string) error {
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+		log.Printf("Could not find %v folder. Creating it.\n", folderPath)
+		os.Mkdir(folderPath, 0777)
+	} else if err != nil {
+		return err
+	}
+	return nil
+}
 
 // Download file and write it disk, using a specific filename
 func DownloadNamedFile(url, desiredFilename string) error {

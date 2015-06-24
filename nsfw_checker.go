@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/koyachi/go-nude"
 	"github.com/thoj/go-ircevent"
@@ -19,6 +20,6 @@ func CheckNSFW(ircbot *irc.Connection, url string) {
 		return
 	}
 	if isNude {
-		ircbot.Privmsgf(Config.Channel, "%v is NSFW", url)
+		ircbot.Privmsgf(configuration.Config.Channel, "%v is NSFW", url)
 	}
 }

@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/thoj/go-ircevent"
 	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/depado/go-b0tsec/configuration"
+	"github.com/thoj/go-ircevent"
 )
 
 // This function takes an array of string and returns a formatted string
@@ -45,20 +47,20 @@ var CommandMapping = map[string]func(*irc.Connection, string, bool, ...[]string)
 
 func afk(ircbot *irc.Connection, nick string, general bool, arguments ...[]string) {
 	if len(arguments) > 0 {
-		ircbot.Privmsgf(Config.Channel, "%v is afk : %v", nick, strings.Join(arguments[0], " "))
+		ircbot.Privmsgf(configuration.Config.Channel, "%v is afk : %v", nick, strings.Join(arguments[0], " "))
 	} else {
-		ircbot.Privmsgf(Config.Channel, "%v is afk.", nick)
+		ircbot.Privmsgf(configuration.Config.Channel, "%v is afk.", nick)
 	}
 }
 
 func eightball(ircbot *irc.Connection, nick string, general bool, arguments ...[]string) {
 	rand.Seed(time.Now().UnixNano())
-	ircbot.Privmsg(Config.Channel, EightBallAnswers[rand.Intn(len(EightBallAnswers))])
+	ircbot.Privmsg(configuration.Config.Channel, EightBallAnswers[rand.Intn(len(EightBallAnswers))])
 }
 
 func say(ircbot *irc.Connection, nick string, general bool, arguments ...[]string) {
 	if len(arguments[0]) > 0 {
-		ircbot.Privmsg(Config.Channel, strings.Join(arguments[0], " "))
+		ircbot.Privmsg(configuration.Config.Channel, strings.Join(arguments[0], " "))
 	} else {
 		ircbot.Privmsg(nick, "This function needs a string.")
 	}
@@ -86,9 +88,9 @@ var GenericCommandMapping = map[string]GenericCommand{
 
 func GenericCommandFormat(ircbot *irc.Connection, nick string, general bool, generic GenericCommand, arguments ...[]string) {
 	if len(arguments[0]) > 0 {
-		ircbot.Privmsgf(Config.Channel, generic.WithTargets, nick, GenerateTargetString(arguments[0]))
+		ircbot.Privmsgf(configuration.Config.Channel, generic.WithTargets, nick, GenerateTargetString(arguments[0]))
 	} else {
-		ircbot.Privmsgf(Config.Channel, generic.NoTargets, nick)
+		ircbot.Privmsgf(configuration.Config.Channel, generic.NoTargets, nick)
 	}
 }
 
@@ -105,5 +107,5 @@ var BasicsWithNickname = map[string]string{
 }
 
 func BasicCommandFormat(ircbot *irc.Connection, nick, response string) {
-	ircbot.Privmsgf(Config.Channel, "%v %v", nick, response)
+	ircbot.Privmsgf(configuration.Config.Channel, "%v %v", nick, response)
 }
