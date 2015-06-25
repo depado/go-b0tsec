@@ -46,16 +46,11 @@ func main() {
 
 		go func(message string) {
 			for _, field := range strings.Fields(message) {
-				if imgRegex.MatchString(field) {
-					CheckNSFW(ircbot, field)
-				}
-			}
-		}(message)
-
-		go func(message string) {
-			for _, field := range strings.Fields(message) {
 				if urlRegex.MatchString(field) {
 					utils.LinkLogger.Println(e.Nick + " : " + field)
+				}
+				if imgRegex.MatchString(field) {
+					CheckNSFW(ircbot, field)
 				}
 			}
 		}(message)
