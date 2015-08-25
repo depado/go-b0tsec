@@ -1,6 +1,7 @@
 package urban
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
@@ -11,45 +12,79 @@ import (
 const apiURL = "http://api.urbandictionary.com/v0/define?term=%s"
 
 type message struct {
-	Tags       []string `json:"tags"`
-	ResultType string   `json:"result_type"`
-	List       []struct {
-		Defid       int    `json:"defid"`
-		Word        string `json:"word"`
-		Author      string `json:"author"`
-		Permalink   string `json:"permalink"`
-		Definition  string `json:"definition"`
-		Example     string `json:"example"`
-		ThumbsUp    int    `json:"thumbs_up"`
-		ThumbsDown  int    `json:"thumbs_down"`
-		CurrentVote string `json:"current_vote"`
-	} `json:"list"`
-	Sounds []string `json:"sounds"`
+	Tags       []string   `json:"tags"`
+	ResultType string     `json:"result_type"`
+	List       []udResult `json:"list"`
+	Sounds     []string   `json:"sounds"`
+}
+
+type udResult struct {
+	Defid       int    `json:"defid"`
+	Word        string `json:"word"`
+	Author      string `json:"author"`
+	Permalink   string `json:"permalink"`
+	Definition  string `json:"definition"`
+	Example     string `json:"example"`
+	ThumbsUp    int    `json:"thumbs_up"`
+	ThumbsDown  int    `json:"thumbs_down"`
+	CurrentVote string `json:"current_vote"`
 }
 
 // Plugin is the Urban dictionary plugin.
 type Plugin struct {
+	Last          message
+	CurrentResult udResult
+	Current       int
 }
 
 // Get actually sends the data to the channel.
-func (p Plugin) Get(ircbot *irc.Connection, nick string, general bool, arguments ...[]string) {
-	res, err := p.Fetch(strings.Join(arguments[0], " "))
-	if err != nil || res == "" {
+func (p *Plugin) Get(ib *irc.Connection, nick string, general bool, arguments ...[]string) {
+	if len(arguments[0]) == 1 {
+		switch arguments[0][0] {
+		case "moar":
+			ib.Privmsg(configuration.Config.Channel, p.more())
+			return
+		case "quote":
+			ib.Privmsg(configuration.Config.Channel, p.CurrentResult.Example)
+			return
+		}
+	}
+	err := p.fetch(strings.Join(arguments[0], " "))
+	if err != nil {
 		return
 	}
-	ircbot.Privmsg(configuration.Config.Channel, res)
+	ib.Privmsg(configuration.Config.Channel, p.CurrentResult.Definition)
 }
 
-// Fetch returns the abstract for the given query.
-func (p Plugin) Fetch(query string) (string, error) {
+func (p *Plugin) sanitize() {
+	p.CurrentResult.Definition = strings.Replace(p.CurrentResult.Definition, "\r\n", " ", -1)
+	p.CurrentResult.Example = strings.Replace(p.CurrentResult.Example, "\r\n", " ", -1)
+}
+
+func (p *Plugin) more() string {
+	if len(p.Last.List) < p.Current+2 {
+		return "Nothing else here."
+	}
+	p.Current++
+	p.CurrentResult = p.Last.List[p.Current]
+	p.sanitize()
+	return p.CurrentResult.Definition
+}
+
+// fetch queries the API with the given query. It then fills the Plugin's struct.
+func (p *Plugin) fetch(query string) error {
 	var t message
 	url := utils.EncodeURL(apiURL, query)
 	err := utils.FetchURL(url, &t)
 	if err != nil {
-		return "", err
+		return err
 	}
 	if len(t.List) == 0 {
-		return "", nil
+		return errors.New("No result")
 	}
-	return t.List[0].Definition, nil
+	p.Last = t
+	p.Current = 0
+	p.CurrentResult = t.List[p.Current]
+	p.sanitize()
+	return nil
 }

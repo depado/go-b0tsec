@@ -18,6 +18,6 @@ func Register(cm map[string]func(*irc.Connection, string, bool, ...[]string), c 
 
 // Init initializes all the plugins.
 func Init(cm map[string]func(*irc.Connection, string, bool, ...[]string)) {
-	Register(cm, "urban", new(urban.Plugin))
+	Register(cm, "ud", new(urban.Plugin))
 	Register(cm, "ddg", new(duckduckgo.Plugin))
 }
