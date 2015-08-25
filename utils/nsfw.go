@@ -1,11 +1,12 @@
-package main
+package utils
 
 import (
+	"os"
+
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/koyachi/go-nude"
 	"github.com/thoj/go-ircevent"
-	"os"
 )
 
 // Check for NSFW Content

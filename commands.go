@@ -10,7 +10,7 @@ import (
 	"github.com/thoj/go-ircevent"
 )
 
-// This function takes an array of string and returns a formatted string
+// GenerateTargetString takes an array of string and returns a formatted string
 func GenerateTargetString(targets []string) string {
 	targetsFormatted := ""
 	if len(targets) > 1 {

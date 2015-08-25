@@ -1,14 +1,15 @@
 package contentmanager
 
 import (
-	"github.com/depado/go-b0tsec/utils"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/depado/go-b0tsec/utils"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -17,10 +18,14 @@ const (
 	contentFolder       = "content/"
 )
 
+// ExternalResource describes an external (distant) resource
+// UpdateInterval is a duration describing how often the resource should be fetched
+// FriendlyName is the name given to the resource. It is used to create the backup folder,
+// and to display friendly logs (without the file name, backup folder name, etc...)
 type ExternalResource struct {
 	UpdateInterval time.Duration
 	FriendlyName   string
-	Url            string
+	URL            string
 	FileName       string
 	Iterations     int
 }
@@ -28,7 +33,7 @@ type ExternalResource struct {
 type UnparsedExternalResource struct {
 	UpdateInterval string
 	FriendlyName   string
-	Url            string
+	URL            string
 	FileName       string
 }
 
@@ -78,7 +83,7 @@ func LoadExternalResourceConfiguration(configPath string) (ExternalResource, err
 	external := ExternalResource{
 		UpdateInterval: duration,
 		FriendlyName:   unparsedExternal.FriendlyName,
-		Url:            unparsedExternal.Url,
+		URL:            unparsedExternal.URL,
 		FileName:       unparsedExternal.FileName,
 	}
 	return external, nil
@@ -135,7 +140,7 @@ func PeriodicUpdateExternalResource(ext ExternalResource) {
 		return
 	}
 
-	if err := utils.DownloadNamedFile(ext.Url, currentFileName); err != nil {
+	if err := utils.DownloadNamedFile(ext.URL, currentFileName); err != nil {
 		log.Println("Error dowloading file :", err)
 		return
 	}
@@ -149,7 +154,7 @@ func PeriodicUpdateExternalResource(ext ExternalResource) {
 	for {
 		<-tickChan
 
-		if err := utils.DownloadNamedFile(ext.Url, tmpFileName); err != nil {
+		if err := utils.DownloadNamedFile(ext.URL, tmpFileName); err != nil {
 			log.Println(err)
 			continue
 		}
@@ -170,7 +175,7 @@ func PeriodicUpdateExternalResource(ext ExternalResource) {
 				log.Println(err)
 				continue
 			}
-			ext.Iterations += 1
+			ext.Iterations++
 			if err := os.Rename(tmpFileName, currentFileName); err != nil {
 				log.Println(err)
 				continue
