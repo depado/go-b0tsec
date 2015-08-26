@@ -39,17 +39,27 @@ type Plugin struct {
 
 // Get actually sends the data to the channel.
 func (p *Plugin) Get(ib *irc.Connection, nick string, general bool, arguments ...[]string) {
+	var err error
 	if len(arguments[0]) == 1 {
 		switch arguments[0][0] {
 		case "moar":
-			ib.Privmsg(configuration.Config.Channel, p.more())
+			err = p.more()
+			if err != nil {
+				ib.Privmsg(configuration.Config.Channel, "Nothing else here.")
+			} else {
+				for _, mess := range utils.SplitMessage(p.CurrentResult.Definition) {
+					ib.Privmsg(configuration.Config.Channel, mess)
+				}
+			}
 			return
 		case "quote":
-			ib.Privmsg(configuration.Config.Channel, p.CurrentResult.Example)
+			for _, mess := range utils.SplitMessage(p.CurrentResult.Example) {
+				ib.Privmsg(configuration.Config.Channel, mess)
+			}
 			return
 		}
 	}
-	err := p.fetch(strings.Join(arguments[0], " "))
+	err = p.fetch(strings.Join(arguments[0], " "))
 	if err != nil {
 		return
 	}
@@ -61,14 +71,14 @@ func (p *Plugin) sanitize() {
 	p.CurrentResult.Example = strings.Replace(p.CurrentResult.Example, "\r\n", " ", -1)
 }
 
-func (p *Plugin) more() string {
+func (p *Plugin) more() error {
 	if len(p.Last.List) < p.Current+2 {
-		return "Nothing else here."
+		return errors.New("Nothing else here.")
 	}
 	p.Current++
 	p.CurrentResult = p.Last.List[p.Current]
 	p.sanitize()
-	return p.CurrentResult.Definition
+	return nil
 }
 
 // fetch queries the API with the given query. It then fills the Plugin's struct.
