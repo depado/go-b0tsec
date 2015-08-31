@@ -45,16 +45,16 @@ func (p *Plugin) Get(ib *irc.Connection, nick string, general bool, arguments ..
 		case "moar":
 			err = p.more()
 			if err != nil {
-				ib.Privmsg(configuration.Config.Channel, "Nothing else here.")
+				utils.Send(ib, err.Error())
 			} else {
-				for _, mess := range utils.SplitMessage(p.CurrentResult.Definition) {
-					ib.Privmsg(configuration.Config.Channel, mess)
+				for _, m := range utils.SplitMessage(p.CurrentResult.Definition) {
+					utils.Send(ib, m)
 				}
 			}
 			return
 		case "quote":
-			for _, mess := range utils.SplitMessage(p.CurrentResult.Example) {
-				ib.Privmsg(configuration.Config.Channel, mess)
+			for _, m := range utils.SplitMessage(p.CurrentResult.Example) {
+				utils.Send(ib, m)
 			}
 			return
 		}
@@ -66,11 +66,15 @@ func (p *Plugin) Get(ib *irc.Connection, nick string, general bool, arguments ..
 	ib.Privmsg(configuration.Config.Channel, p.CurrentResult.Definition)
 }
 
+// sanitize removes the \r\n escaping chars from the definitions and example of
+// p.CurrentResult
 func (p *Plugin) sanitize() {
 	p.CurrentResult.Definition = strings.Replace(p.CurrentResult.Definition, "\r\n", " ", -1)
 	p.CurrentResult.Example = strings.Replace(p.CurrentResult.Example, "\r\n", " ", -1)
 }
 
+// more switches the p.CurrentResult to the next entry or returns an error if it
+// was already the last entry available.
 func (p *Plugin) more() error {
 	if len(p.Last.List) < p.Current+2 {
 		return errors.New("Nothing else here.")
@@ -81,7 +85,7 @@ func (p *Plugin) more() error {
 	return nil
 }
 
-// fetch queries the API with the given query. It then fills the Plugin's struct.
+// fetch queries the apiURL with the given query and populates the p Plugin.
 func (p *Plugin) fetch(query string) error {
 	var t message
 	url := utils.EncodeURL(apiURL, query)

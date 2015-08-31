@@ -95,7 +95,7 @@ func GenericCommandFormat(ircbot *irc.Connection, nick string, general bool, gen
 }
 
 /*
-	This commands are designed to only display a message. No arguments needs to be given.
+	These commands are designed to only display a message. No arguments needs to be given.
 	(Only the nickname is known and used as the string formatter)
 	This map is associated with the BasicCommandFormat function.
 */
@@ -104,8 +104,10 @@ var BasicsWithNickname = map[string]string{
 	"smoke":  "is going to smoke.",
 	"drug":   "is going to smoke a big joint.",
 	"coffee": "is going to drink a coffee.",
+	"dunno":  "< I dunno ¯\\(°_o)/¯",
 }
 
+// BasicCommandFormat sends the basic command
 func BasicCommandFormat(ircbot *irc.Connection, nick, response string) {
 	ircbot.Privmsgf(configuration.Config.Channel, "%v %v", nick, response)
 }
