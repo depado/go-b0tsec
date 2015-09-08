@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/tls"
+	"flag"
 	"log"
 	"regexp"
 	"strings"
@@ -13,14 +15,22 @@ import (
 )
 
 func main() {
-	//imgRegex, _ := regexp.Compile("^https?:.*(jpg|png|gif)$")
+	// Argument parsing
+	confPath := flag.String("c", "conf/conf.yml", "Local path to configuration file.")
+	noExt := flag.Bool("no-external", false, "Disable the external resource collection.")
+	flag.Parse()
+
+	// Url Regexp
 	urlRegex, _ := regexp.Compile("^https?:.*$")
 
 	// Load the configuration of the bot
-	// IDEA : Give the configuration as a parameter to the program.
-	configuration.LoadConfiguration()
-	if err := contentmanager.LoadAndStartExternalResources(); err != nil {
-		log.Println("Error Starting External Resources : ", err)
+	configuration.LoadConfiguration(*confPath)
+
+	// Start external resource collection if needed
+	if !*noExt {
+		if err := contentmanager.LoadAndStartExternalResources(); err != nil {
+			log.Println("Error Starting External Resources : ", err)
+		}
 	}
 
 	// Loggers Initialization
@@ -32,33 +42,37 @@ func main() {
 	defer utils.LinkFile.Close()
 
 	// Bot initialization
-	ircbot := irc.IRC(configuration.Config.BotName, configuration.Config.BotName)
-	ircbot.Connect(configuration.Config.Server)
+	ib := irc.IRC(configuration.Config.BotName, configuration.Config.BotName)
+	if configuration.Config.TLS {
+		ib.UseTLS = true
+		if configuration.Config.InsecureTLS {
+			ib.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+		}
+	}
+	ib.Connect(configuration.Config.Server)
 
 	// Plugins initialization
 	plugins.Init(CommandMapping)
 
 	// Callback on 'Connected' event
-	ircbot.AddCallback("001", func(e *irc.Event) {
-		ircbot.Join(configuration.Config.Channel)
+	ib.AddCallback("001", func(e *irc.Event) {
+		ib.Join(configuration.Config.Channel)
 	})
 
 	// Callback on 'Message' event
-	ircbot.AddCallback("PRIVMSG", func(e *irc.Event) {
+	ib.AddCallback("PRIVMSG", func(e *irc.Event) {
 		nick := e.Nick
 		message := e.Message()
 		sentTo := e.Arguments[0]
 
 		utils.HistoryLogger.Println(e.Nick + " : " + message)
 
+		// Logging capability
 		go func(message string) {
 			for _, field := range strings.Fields(message) {
 				if urlRegex.MatchString(field) {
 					utils.LinkLogger.Println(e.Nick + " : " + field)
 				}
-				// if imgRegex.MatchString(field) {
-				// 	utils.CheckNSFW(ircbot, field)
-				// }
 			}
 		}(message)
 
@@ -68,17 +82,17 @@ func main() {
 				command := commandArray[0]
 				if commandCallback, ok := CommandMapping[command]; ok {
 					if len(commandArray) > 1 {
-						commandCallback(ircbot, nick, sentTo == configuration.Config.Channel, commandArray[1:])
+						commandCallback(ib, nick, sentTo == configuration.Config.Channel, commandArray[1:])
 					} else {
-						commandCallback(ircbot, nick, sentTo == configuration.Config.Channel)
+						commandCallback(ib, nick, sentTo == configuration.Config.Channel)
 					}
 				} else if response, ok := BasicsWithNickname[command]; ok {
-					BasicCommandFormat(ircbot, nick, response)
+					BasicCommandFormat(ib, nick, response)
 				} else if generic, ok := GenericCommandMapping[command]; ok {
-					GenericCommandFormat(ircbot, nick, sentTo == configuration.Config.Channel, generic, commandArray[1:])
+					GenericCommandFormat(ib, nick, sentTo == configuration.Config.Channel, generic, commandArray[1:])
 				}
 			}
 		}
 	})
-	ircbot.Loop()
+	ib.Loop()
 }
