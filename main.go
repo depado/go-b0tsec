@@ -52,7 +52,7 @@ func main() {
 	ib.Connect(configuration.Config.Server)
 
 	// Plugins initialization
-	plugins.Init(CommandMapping)
+	plugins.Init()
 
 	// Callback on 'Connected' event
 	ib.AddCallback("001", func(e *irc.Event) {
@@ -76,20 +76,18 @@ func main() {
 			}
 		}(message)
 
+		// TODO: Simplify this and think of another way to pass the arguments.
+		// There is no need to split the string after the command if the plugin doesn't need a splitted string.
 		if strings.HasPrefix(message, "!") {
 			if len(message) > 1 {
 				commandArray := strings.Fields(message[1:])
 				command := commandArray[0]
-				if commandCallback, ok := CommandMapping[command]; ok {
+				if commandCallback, ok := plugins.PluginMap[command]; ok {
 					if len(commandArray) > 1 {
 						commandCallback(ib, nick, sentTo == configuration.Config.Channel, commandArray[1:])
 					} else {
 						commandCallback(ib, nick, sentTo == configuration.Config.Channel)
 					}
-				} else if response, ok := BasicsWithNickname[command]; ok {
-					BasicCommandFormat(ib, nick, response)
-				} else if generic, ok := GenericCommandMapping[command]; ok {
-					GenericCommandFormat(ib, nick, sentTo == configuration.Config.Channel, generic, commandArray[1:])
 				}
 			}
 		}
