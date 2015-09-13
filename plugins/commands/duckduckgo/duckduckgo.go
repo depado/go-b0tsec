@@ -44,8 +44,8 @@ type Plugin struct {
 }
 
 // Get actually sends the data to the channel
-func (p Plugin) Get(ircbot *irc.Connection, nick string, general bool, arguments ...[]string) {
-	res, err := p.Fetch(strings.Join(arguments[0], " "))
+func (p Plugin) Get(ircbot *irc.Connection, from string, to string, args []string) {
+	res, err := p.Fetch(strings.Join(args, " "))
 	if err != nil || res == "" {
 		return
 	}

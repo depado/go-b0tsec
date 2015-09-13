@@ -14,8 +14,8 @@ type Plugin struct {
 }
 
 // Get actually sends the data to the channel.
-func (p Plugin) Get(ib *irc.Connection, nick string, general bool, arguments ...[]string) {
-	if len(arguments[0]) > 0 {
-		ib.Privmsg(configuration.Config.Channel, strings.Join(arguments[0], " "))
+func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if len(args) > 0 {
+		ib.Privmsg(configuration.Config.Channel, strings.Join(args, " "))
 	}
 }

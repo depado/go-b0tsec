@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"flag"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
@@ -19,9 +18,6 @@ func main() {
 	confPath := flag.String("c", "conf/conf.yml", "Local path to configuration file.")
 	noExt := flag.Bool("no-external", false, "Disable the external resource collection.")
 	flag.Parse()
-
-	// Url Regexp
-	urlRegex, _ := regexp.Compile("^https?:.*$")
 
 	// Load the configuration of the bot
 	configuration.LoadConfiguration(*confPath)
@@ -61,32 +57,22 @@ func main() {
 
 	// Callback on 'Message' event
 	ib.AddCallback("PRIVMSG", func(e *irc.Event) {
-		nick := e.Nick
+		from := e.Nick
+		to := e.Arguments[0]
 		message := e.Message()
-		sentTo := e.Arguments[0]
 
-		utils.HistoryLogger.Println(e.Nick + " : " + message)
+		for _, c := range plugins.Middlewares {
+			c(ib, from, to, message)
+		}
 
-		// Logging capability
-		go func(message string) {
-			for _, field := range strings.Fields(message) {
-				if urlRegex.MatchString(field) {
-					utils.LinkLogger.Println(e.Nick + " : " + field)
-				}
-			}
-		}(message)
-
-		// TODO: Simplify this and think of another way to pass the arguments.
-		// There is no need to split the string after the command if the plugin doesn't need a splitted string.
 		if strings.HasPrefix(message, "!") {
 			if len(message) > 1 {
-				commandArray := strings.Fields(message[1:])
-				command := commandArray[0]
-				if commandCallback, ok := plugins.PluginMap[command]; ok {
-					if len(commandArray) > 1 {
-						commandCallback(ib, nick, sentTo == configuration.Config.Channel, commandArray[1:])
-					} else {
-						commandCallback(ib, nick, sentTo == configuration.Config.Channel)
+				splitted := strings.Fields(message[1:])
+				command := splitted[0]
+				args := splitted[1:]
+				if cc, ok := plugins.Plugins[command]; ok {
+					if len(args) > 0 {
+						cc(ib, from, to, args)
 					}
 				}
 			}

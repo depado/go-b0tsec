@@ -38,10 +38,10 @@ type Plugin struct {
 }
 
 // Get actually sends the data to the channel.
-func (p *Plugin) Get(ib *irc.Connection, nick string, general bool, arguments ...[]string) {
+func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	var err error
-	if len(arguments[0]) == 1 {
-		switch arguments[0][0] {
+	if len(args) == 1 {
+		switch args[0] {
 		case "moar":
 			err = p.more()
 			if err != nil {
@@ -59,7 +59,7 @@ func (p *Plugin) Get(ib *irc.Connection, nick string, general bool, arguments ..
 			return
 		}
 	}
-	err = p.fetch(strings.Join(arguments[0], " "))
+	err = p.fetch(strings.Join(args, " "))
 	if err != nil {
 		return
 	}
