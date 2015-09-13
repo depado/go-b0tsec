@@ -40,20 +40,26 @@ type relatedTopic struct {
 }
 
 // Plugin is the duckduckgo plugin.
-type Plugin struct {
+type Plugin struct{}
+
+// Help provides some help on the plugin
+func (p Plugin) Help(ib *irc.Connection, from string) {
+	ib.Privmsg(from, "    Search directly on DuckDuckGo.")
+	ib.Privmsg(from, "    Example : !command Who is James Cameron ?")
 }
 
 // Get actually sends the data to the channel
 func (p Plugin) Get(ircbot *irc.Connection, from string, to string, args []string) {
-	res, err := p.Fetch(strings.Join(args, " "))
-	if err != nil || res == "" {
-		return
+	if len(args) > 0 {
+		res, err := p.fetch(strings.Join(args, " "))
+		if err != nil || res == "" {
+			return
+		}
+		ircbot.Privmsg(configuration.Config.Channel, res)
 	}
-	ircbot.Privmsg(configuration.Config.Channel, res)
 }
 
-// Fetch returns the abstract for the given query
-func (p Plugin) Fetch(query string) (string, error) {
+func (p Plugin) fetch(query string) (string, error) {
 	var t message
 	url := utils.EncodeURL(apiURL, query)
 	err := utils.FetchURL(url, &t)

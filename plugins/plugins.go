@@ -3,6 +3,7 @@ package plugins
 import (
 	"github.com/depado/go-b0tsec/plugins/commands/anon"
 	"github.com/depado/go-b0tsec/plugins/commands/duckduckgo"
+	"github.com/depado/go-b0tsec/plugins/commands/example"
 	"github.com/depado/go-b0tsec/plugins/commands/urban"
 	"github.com/depado/go-b0tsec/plugins/middlewares/github"
 	"github.com/depado/go-b0tsec/plugins/middlewares/logger"
@@ -12,6 +13,7 @@ import (
 // Plugin represents a single plugin. The Get method is use to send things.
 type Plugin interface {
 	Get(*irc.Connection, string, string, []string)
+	Help(*irc.Connection, string)
 }
 
 // Middleware represents a single middleware. More of a convenience struct than anything else.
@@ -20,14 +22,14 @@ type Middleware interface {
 }
 
 // Plugins is a map with the command as key and a function to be executed as value.
-var Plugins = map[string]func(*irc.Connection, string, string, []string){}
+var Plugins = map[string]Plugin{}
 
 // Middlewares is a slice containing the plugins that should be executed on each message reception.
 var Middlewares = []func(*irc.Connection, string, string, string){}
 
 // RegisterCommand registers a plugin in the cm CommandMap, associating the c command to the p Plugin.
 func RegisterCommand(c string, p Plugin) {
-	Plugins[c] = p.Get
+	Plugins[c] = p
 }
 
 // RegisterMiddleware inserts a plugin inside the Middlewares slice.
@@ -42,4 +44,28 @@ func Init() {
 	RegisterCommand("ud", new(urban.Plugin))
 	RegisterCommand("ddg", new(duckduckgo.Plugin))
 	RegisterCommand("anon", new(anon.Plugin))
+	RegisterCommand("ex", new(example.Plugin))
+}
+
+// Help is the help plugin. Builtin.
+type Help struct{}
+
+// Get actually executes the command.
+func (h Help) Get(ib *irc.Connection, from string, to string, args []string) {
+	if len(args) == 0 {
+		for k, p := range Plugins {
+			ib.Privmsgf(from, "Command %s :", k)
+			p.Help(ib, from)
+		}
+	} else {
+		if p, ok := Plugins[args[0]]; ok {
+			p.Help(ib, from)
+		}
+	}
+}
+
+// Help shows the help for the plugin.
+func (h Help) Help(ib *irc.Connection, from string) {
+	ib.Privmsg(from, "    With argument : Show the help for a specific argument (e.g : !help ud).")
+	ib.Privmsg(from, "    Without argument : Shows the help for all the known commands.")
 }

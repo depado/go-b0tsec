@@ -37,33 +37,42 @@ type Plugin struct {
 	Current       int
 }
 
+// Help must send the help about this plugin.
+func (p Plugin) Help(ib *irc.Connection, from string) {
+	ib.Privmsg(from, "    Allows to search a term on the Urban Dictionnary")
+	ib.Privmsg(from, "    Optional argument : moar - Allows to search another definition from the previous search.")
+	ib.Privmsg(from, "    Optional argument : quote - Allows to search a quote from the previous search.")
+}
+
 // Get actually sends the data to the channel.
 func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
-	var err error
-	if len(args) == 1 {
-		switch args[0] {
-		case "moar":
-			err = p.more()
-			if err != nil {
-				utils.Send(ib, err.Error())
-			} else {
-				for _, m := range utils.SplitMessage(p.CurrentResult.Definition) {
+	if len(args) > 0 {
+		var err error
+		if len(args) == 1 {
+			switch args[0] {
+			case "moar":
+				err = p.more()
+				if err != nil {
+					utils.Send(ib, err.Error())
+				} else {
+					for _, m := range utils.SplitMessage(p.CurrentResult.Definition) {
+						utils.Send(ib, m)
+					}
+				}
+				return
+			case "quote":
+				for _, m := range utils.SplitMessage(p.CurrentResult.Example) {
 					utils.Send(ib, m)
 				}
+				return
 			}
-			return
-		case "quote":
-			for _, m := range utils.SplitMessage(p.CurrentResult.Example) {
-				utils.Send(ib, m)
-			}
+		}
+		err = p.fetch(strings.Join(args, " "))
+		if err != nil {
 			return
 		}
+		ib.Privmsg(configuration.Config.Channel, p.CurrentResult.Definition)
 	}
-	err = p.fetch(strings.Join(args, " "))
-	if err != nil {
-		return
-	}
-	ib.Privmsg(configuration.Config.Channel, p.CurrentResult.Definition)
 }
 
 // sanitize removes the \r\n escaping chars from the definitions and example of

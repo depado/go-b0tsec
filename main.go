@@ -70,10 +70,8 @@ func main() {
 				splitted := strings.Fields(message[1:])
 				command := splitted[0]
 				args := splitted[1:]
-				if cc, ok := plugins.Plugins[command]; ok {
-					if len(args) > 0 {
-						cc(ib, from, to, args)
-					}
+				if p, ok := plugins.Plugins[command]; ok {
+					p.Get(ib, from, to, args)
 				}
 			}
 		}
