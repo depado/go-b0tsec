@@ -3,3 +3,17 @@ language: go
 go:
   - 1.5
   - tip
+
+before_install:
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/axw/gocov/gocov
+  - go get github.com/modocache/gover
+  - go get github.com/mattn/goveralls
+script:
+  - go test -coverprofile=configuration.coverprofile ./configuration
+  - go test -coverprofile=contentmanager.coverprofile ./contentmanager
+  - go test -coverprofile=plugins.coverprofile ./plugins
+  - go test -coverprofile=utils.coverprofile ./utils
+  - go test -coverprofile=main.coverprofile
+  - $HOME/gopath/bin/gover
+  - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci

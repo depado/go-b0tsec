@@ -1,4 +1,5 @@
 [![Travis](https://travis-ci.org/Depado/b0tsec.svg)](https://travis-ci.org/Depado/b0tsec)
+[![Coverage Status](https://coveralls.io/repos/Depado/go-b0tsec/badge.svg?branch=master&service=github)](https://coveralls.io/github/Depado/go-b0tsec?branch=master)
 [![Go Report Card](http://goreportcard.com/badge/Depado/go-b0tsec)](http://goreportcard.com/report/Depado/go-b0tsec)
 
 # Go-b0tsec

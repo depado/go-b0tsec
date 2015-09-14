@@ -59,15 +59,15 @@ func main() {
 	ib.AddCallback("PRIVMSG", func(e *irc.Event) {
 		from := e.Nick
 		to := e.Arguments[0]
-		message := e.Message()
+		m := e.Message()
 
 		for _, c := range plugins.Middlewares {
-			c(ib, from, to, message)
+			c(ib, from, to, m)
 		}
 
-		if strings.HasPrefix(message, "!") {
-			if len(message) > 1 {
-				splitted := strings.Fields(message[1:])
+		if strings.HasPrefix(m, "!") {
+			if len(m) > 1 {
+				splitted := strings.Fields(m[1:])
 				command := splitted[0]
 				args := splitted[1:]
 				if p, ok := plugins.Plugins[command]; ok {
