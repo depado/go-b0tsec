@@ -16,7 +16,7 @@ type Plugin interface {
 	Help(*irc.Connection, string)
 }
 
-// Middleware represents a single middleware. More of a convenience struct than anything else.
+// Middleware represents a single middleware.
 type Middleware interface {
 	Get(*irc.Connection, string, string, string)
 }
