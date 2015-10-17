@@ -35,5 +35,20 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 
 // Get actually acts
 func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if len(args) > 0 {
+		if i, ok := stringInSlice(">", args); ok && len(args) > i+1 {
+			ib.Privmsgf(to, "%v: %v", args[i+1], markovchains.MainChain.Generate())
+		}
+		return
+	}
 	ib.Privmsg(to, markovchains.MainChain.Generate())
+}
+
+func stringInSlice(a string, list []string) (int, bool) {
+	for i, b := range list {
+		if b == a {
+			return i, true
+		}
+	}
+	return -1, false
 }
