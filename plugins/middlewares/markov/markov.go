@@ -15,7 +15,8 @@ type Middleware struct{}
 
 // Get actually operates on the message
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
-	if !strings.HasPrefix(message, "!") {
+	if !strings.HasPrefix(message, "!") && len(strings.Fields(message)) > 3 {
+		message = strings.Replace(message, `"`, "", -1)
 		markovchains.MainChain.Build(message)
 		markovchains.MainChain.Save()
 		if rand.Intn(100) < 5 {

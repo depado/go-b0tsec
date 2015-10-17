@@ -46,6 +46,7 @@ func Init() {
 	RegisterCommand("ddg", new(duckduckgo.Plugin))
 	RegisterCommand("anon", new(anon.Plugin))
 	RegisterCommand("markov", new(markov.Plugin))
+	RegisterCommand("!help", new(Help))
 }
 
 // Help is the help plugin. Builtin.
