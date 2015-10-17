@@ -1,7 +1,6 @@
 package markovchains
 
 import (
-	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -43,7 +42,6 @@ func (c *Chain) Build(s string) {
 		c.Chain[key] = append(c.Chain[key], v)
 		p.Shift(v)
 	}
-	log.Println(c.Chain)
 }
 
 // Generate returns a string of at most n words generated from Chain.
@@ -68,7 +66,15 @@ func NewChain(key string) *Chain {
 }
 
 // Init Initializes the markov chain
-func Init() {
+func Init() error {
+	var err error
+	if err = InitBucketIfNotExists(); err != nil {
+		return err
+	}
+	MainChain, err = GetChain("main")
+	if err != nil {
+		MainChain = NewChain("main")
+	}
 	rand.Seed(time.Now().UnixNano())
-	MainChain = NewChain("main")
+	return nil
 }

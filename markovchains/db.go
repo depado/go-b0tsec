@@ -11,7 +11,7 @@ import (
 const chainBucketName = "markov"
 
 // Save saves a chain to the database
-func (c *Chain) Save(key string) error {
+func (c *Chain) Save() error {
 	db := database.BotStorage.DB
 	if !database.BotStorage.Opened {
 		return fmt.Errorf("db must be opened before saving")
@@ -71,4 +71,16 @@ func Decode(data []byte) (*Chain, error) {
 		return nil, err
 	}
 	return c, nil
+}
+
+// InitBucketIfNotExists creates the bucket if it doesn't already exists
+func InitBucketIfNotExists() error {
+	err := database.BotStorage.DB.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte(chainBucketName))
+		if err != nil {
+			return fmt.Errorf("create bucket: %s", err)
+		}
+		return err
+	})
+	return err
 }

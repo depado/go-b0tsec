@@ -3,10 +3,10 @@ package plugins
 import (
 	"github.com/depado/go-b0tsec/plugins/commands/anon"
 	"github.com/depado/go-b0tsec/plugins/commands/duckduckgo"
-	"github.com/depado/go-b0tsec/plugins/commands/example"
 	"github.com/depado/go-b0tsec/plugins/commands/urban"
 	"github.com/depado/go-b0tsec/plugins/middlewares/github"
 	"github.com/depado/go-b0tsec/plugins/middlewares/logger"
+	"github.com/depado/go-b0tsec/plugins/middlewares/markov"
 	"github.com/thoj/go-ircevent"
 )
 
@@ -41,10 +41,11 @@ func RegisterMiddleware(m Middleware) {
 func Init() {
 	RegisterMiddleware(new(logger.Middleware))
 	RegisterMiddleware(new(github.Middleware))
+	RegisterMiddleware(new(markov.Middleware))
 	RegisterCommand("ud", new(urban.Plugin))
 	RegisterCommand("ddg", new(duckduckgo.Plugin))
 	RegisterCommand("anon", new(anon.Plugin))
-	RegisterCommand("ex", new(example.Plugin))
+	RegisterCommand("markov", new(markov.Plugin))
 }
 
 // Help is the help plugin. Builtin.

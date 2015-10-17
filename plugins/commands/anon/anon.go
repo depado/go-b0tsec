@@ -19,6 +19,6 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 // Get actually sends the data to the channel.
 func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	if len(args) > 0 {
-		ib.Privmsg(configuration.Config.Channel, strings.Join(args, " "))
+		ib.Privmsgf(configuration.Config.Channel, "[A] %v", strings.Join(args, " "))
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/contentmanager"
 	"github.com/depado/go-b0tsec/database"
+	"github.com/depado/go-b0tsec/markovchains"
 	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
@@ -42,6 +43,11 @@ func main() {
 	// Storage initialization
 	if err = database.BotStorage.Open(); err != nil {
 		log.Fatalf("Something went wrong with the databse : %v", err)
+	}
+
+	// Markov chain initialization
+	if err = markovchains.Init(); err != nil {
+		log.Fatalf("Something went wrong with the markov chains : %v", err)
 	}
 
 	// Bot initialization

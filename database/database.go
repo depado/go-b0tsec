@@ -1,8 +1,6 @@
 package database
 
 import (
-	"path"
-	"runtime"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -17,8 +15,7 @@ type Storage struct {
 // Open opens the database connection and create the file if necessary
 func (s *Storage) Open() error {
 	var err error
-	_, filename, _, _ := runtime.Caller(0)
-	dbfile := path.Join(path.Dir(filename), "data.db")
+	dbfile := "data.db"
 	config := &bolt.Options{Timeout: 1 * time.Second}
 	s.DB, err = bolt.Open(dbfile, 0600, config)
 	if err != nil {
