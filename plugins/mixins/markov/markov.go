@@ -36,6 +36,11 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	}
 }
 
+// NewMiddleware returns a new middleware
+func NewMiddleware() *Middleware {
+	return new(Middleware)
+}
+
 // Plugin is the markov.Plugin type
 type Plugin struct{}
 
@@ -53,6 +58,11 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 		return
 	}
 	ib.Privmsg(to, markovchains.MainChain.Generate())
+}
+
+// NewPlugin returns a new plugin
+func NewPlugin() *Plugin {
+	return new(Plugin)
 }
 
 func stringInSlice(a string, list []string) (int, bool) {

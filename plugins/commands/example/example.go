@@ -31,3 +31,8 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	ib.Privmsg(to, "This command doesn't do much, but I'm glad you tried it out.")
 }
+
+// NewPlugin returns a new plugin
+func NewPlugin() *Plugin {
+	return new(Plugin)
+}

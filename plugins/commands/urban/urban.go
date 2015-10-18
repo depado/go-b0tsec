@@ -111,3 +111,8 @@ func (p *Plugin) fetch(query string) error {
 	p.sanitize()
 	return nil
 }
+
+// NewPlugin returns a new plugin
+func NewPlugin() *Plugin {
+	return new(Plugin)
+}

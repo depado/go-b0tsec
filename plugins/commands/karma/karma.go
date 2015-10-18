@@ -104,14 +104,12 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	}
 }
 
-// New initializes new plugin
-func New() Plugin {
+// NewPlugin initializes new plugin
+func NewPlugin() *Plugin {
 	d := Data{make(map[string]int)}
 	if err := database.BotStorage.CreateBucket(bucketName); err != nil {
 		log.Fatalf("While initializing Karma plugin : %s", err)
-	} else {
-		log.Println("Created bucket", bucketName)
 	}
 	database.BotStorage.Get(bucketName, mainKey, &d)
-	return Plugin{d, make(map[string]time.Time)}
+	return &Plugin{d, make(map[string]time.Time)}
 }

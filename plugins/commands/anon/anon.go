@@ -22,3 +22,8 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 		ib.Privmsgf(configuration.Config.Channel, "[A] %v", strings.Join(args, " "))
 	}
 }
+
+// NewPlugin returns a new plugin
+func NewPlugin() *Plugin {
+	return new(Plugin)
+}

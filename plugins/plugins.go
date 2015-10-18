@@ -2,7 +2,6 @@ package plugins
 
 import (
 	"github.com/depado/go-b0tsec/plugins/commands/anon"
-	"github.com/depado/go-b0tsec/plugins/commands/duckduckgo"
 	"github.com/depado/go-b0tsec/plugins/commands/karma"
 	"github.com/depado/go-b0tsec/plugins/commands/urban"
 	"github.com/depado/go-b0tsec/plugins/middlewares/github"
@@ -40,14 +39,14 @@ func RegisterMiddleware(m Middleware) {
 
 // Init initializes all the plugins and middlewares.
 func Init() {
-	RegisterMiddleware(new(logger.Middleware))
-	RegisterMiddleware(new(github.Middleware))
-	RegisterMiddleware(new(markov.Middleware))
-	RegisterCommand("ud", new(urban.Plugin))
-	RegisterCommand("ddg", new(duckduckgo.Plugin))
-	RegisterCommand("anon", new(anon.Plugin))
-	RegisterCommand("markov", new(markov.Plugin))
-	RegisterCommand("karma", karma.New())
+	RegisterMiddleware(logger.NewMiddleware())
+	RegisterMiddleware(github.NewMiddleware())
+	RegisterMiddleware(markov.NewMiddleware())
+	RegisterCommand("ud", urban.NewPlugin())
+	RegisterCommand("ddg", urban.NewPlugin())
+	RegisterCommand("anon", anon.NewPlugin())
+	RegisterCommand("markov", markov.NewPlugin())
+	RegisterCommand("karma", karma.NewPlugin())
 	RegisterCommand("help", new(Help))
 }
 

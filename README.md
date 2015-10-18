@@ -49,3 +49,7 @@ You can then register your middleware like that :
 ```go
 RegisterMiddleware(new(mymiddleware.Middleware))
 ```
+
+### License ###
+This project is under the WTF Public License. Do what the fuck you want.
+See the [LICENSE.md](https://github.com/Depado/go-b0tsec/blob/master/LICENSE.md) file for license rights and limitations (WTFPL).

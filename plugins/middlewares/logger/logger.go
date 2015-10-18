@@ -22,3 +22,8 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 		}
 	}
 }
+
+// NewMiddleware returns a new Middleware
+func NewMiddleware() *Middleware {
+	return new(Middleware)
+}

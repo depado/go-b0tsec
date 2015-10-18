@@ -68,3 +68,8 @@ func (p Plugin) fetch(query string) (string, error) {
 	}
 	return t.Abstract, nil
 }
+
+// NewPlugin returns a new plugin
+func NewPlugin() *Plugin {
+	return new(Plugin)
+}
