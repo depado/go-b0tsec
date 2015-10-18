@@ -15,7 +15,9 @@ type Plugin struct {
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    Karma stuff")
+	ib.Privmsg(from, "    Allows to add/remove/see karma points to/from a person.")
+	ib.Privmsg(from, "    Add/Remove : !karma [+|-] <nickname>")
+	ib.Privmsg(from, "    See : !karma = <nickname>")
 }
 
 // Get is the actual call to your plugin.
@@ -26,8 +28,8 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 			if len(args) > 1 {
 				if from != args[1] {
 					if val, ok := p.Action[from]; ok {
-						if time.Since(val) < 30*time.Minute {
-							ib.Notice(from, "Please wait 30 minutes between each karma operation.")
+						if time.Since(val) < 1*time.Minute {
+							ib.Notice(from, "Please wait 1 minute between each karma operation.")
 							return
 						}
 					}
