@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -29,6 +30,64 @@ func (s *Storage) Open() error {
 func (s *Storage) Close() error {
 	s.Opened = false
 	err := s.DB.Close()
+	return err
+}
+
+// Storable is the type of data that can be stored/retrieved from the database.
+type Storable interface {
+	Encode() ([]byte, error)
+	Decode([]byte) error
+}
+
+// Save saves some data inside the bucket at the specified key.
+func (s Storage) Save(bucket, key string, data Storable) error {
+	if !s.Opened {
+		return fmt.Errorf("db must be opened before saving")
+	}
+	err := s.DB.Update(func(tx *bolt.Tx) error {
+		mBucket, err := tx.CreateBucketIfNotExists([]byte(bucket))
+		if err != nil {
+			return fmt.Errorf("Error creating bucket : %s", err)
+		}
+		enc, err := data.Encode()
+		if err != nil {
+			return fmt.Errorf("Could not encode : %s", err)
+		}
+		err = mBucket.Put([]byte(key), enc)
+		return err
+	})
+	return err
+}
+
+// Get retrieves the specific Storable object from bucket and key
+func (s Storage) Get(bucket, key string, to Storable) error {
+	if !s.Opened {
+		return fmt.Errorf("Database must be opened first.")
+	}
+	err := s.DB.View(func(tx *bolt.Tx) error {
+		var err error
+		b := tx.Bucket([]byte(bucket))
+		k := []byte(key)
+		if err = to.Decode(b.Get(k)); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateBucket creates a bucket if it doesn't exist.
+func (s Storage) CreateBucket(bucket string) error {
+	err := s.DB.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte(bucket))
+		if err != nil {
+			return fmt.Errorf("Error creating bucket : %s", err)
+		}
+		return err
+	})
 	return err
 }
 

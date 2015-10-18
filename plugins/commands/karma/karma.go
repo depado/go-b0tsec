@@ -1,15 +1,48 @@
 package karma
 
 import (
+	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/database"
 	"github.com/thoj/go-ircevent"
 )
 
+const bucketName = "karma"
+const mainKey = "main"
+
+// Data is the struct that contains the data about the karma intented to be stored somewhere.
+type Data struct {
+	Karma map[string]int
+}
+
+// Encode encodes a chain to json.
+func (d Data) Encode() ([]byte, error) {
+	enc, err := json.Marshal(d)
+	if err != nil {
+		return nil, err
+	}
+	return enc, nil
+}
+
+// Decode decodes json to Chain
+func (d *Data) Decode(data []byte) error {
+	if err := json.Unmarshal(data, d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Save saves the Data
+func (d Data) Save() error {
+	return database.BotStorage.Save(bucketName, mainKey, &d)
+}
+
 // Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
 type Plugin struct {
-	Karma  map[string]int
+	Data
 	Action map[string]time.Time
 }
 
@@ -45,6 +78,9 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 						p.Karma[args[1]] = c - 1
 						ib.Privmsgf(configuration.Config.Channel, "Someone took a karma point from %v, total %v", args[1], c-1)
 					}
+					if err := p.Data.Save(); err != nil {
+						log.Println(err)
+					}
 				} else {
 					ib.Notice(from, "Can't add or remove points to yourself.")
 					return
@@ -70,5 +106,12 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 
 // New initializes new plugin
 func New() Plugin {
-	return Plugin{make(map[string]int), make(map[string]time.Time)}
+	d := Data{make(map[string]int)}
+	if err := database.BotStorage.CreateBucket(bucketName); err != nil {
+		log.Fatalf("While initializing Karma plugin : %s", err)
+	} else {
+		log.Println("Created bucket", bucketName)
+	}
+	database.BotStorage.Get(bucketName, mainKey, &d)
+	return Plugin{d, make(map[string]time.Time)}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/depado/go-b0tsec/plugins/commands/urban"
 	"github.com/depado/go-b0tsec/plugins/middlewares/github"
 	"github.com/depado/go-b0tsec/plugins/middlewares/logger"
-	"github.com/depado/go-b0tsec/plugins/middlewares/markov"
+	"github.com/depado/go-b0tsec/plugins/mixins/markov"
 	"github.com/thoj/go-ircevent"
 )
 
