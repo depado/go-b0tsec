@@ -1,6 +1,7 @@
 package markov
 
 import (
+	"log"
 	"math/rand"
 
 	"github.com/depado/go-b0tsec/configuration"
@@ -18,7 +19,9 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	if !strings.HasPrefix(message, "!") && len(strings.Fields(message)) > 3 {
 		message = strings.Replace(message, `"`, "", -1)
 		markovchains.MainChain.Build(message)
-		markovchains.MainChain.Save()
+		if err := markovchains.MainChain.Save(); err != nil {
+			log.Println("Could not save to Bolt :", err)
+		}
 		if rand.Intn(100) < 5 {
 			ib.Privmsg(configuration.Config.Channel, markovchains.MainChain.Generate())
 		}

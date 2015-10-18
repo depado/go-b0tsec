@@ -3,6 +3,7 @@ package plugins
 import (
 	"github.com/depado/go-b0tsec/plugins/commands/anon"
 	"github.com/depado/go-b0tsec/plugins/commands/duckduckgo"
+	"github.com/depado/go-b0tsec/plugins/commands/karma"
 	"github.com/depado/go-b0tsec/plugins/commands/urban"
 	"github.com/depado/go-b0tsec/plugins/middlewares/github"
 	"github.com/depado/go-b0tsec/plugins/middlewares/logger"
@@ -46,7 +47,8 @@ func Init() {
 	RegisterCommand("ddg", new(duckduckgo.Plugin))
 	RegisterCommand("anon", new(anon.Plugin))
 	RegisterCommand("markov", new(markov.Plugin))
-	RegisterCommand("!help", new(Help))
+	RegisterCommand("karma", karma.New())
+	RegisterCommand("help", new(Help))
 }
 
 // Help is the help plugin. Builtin.
