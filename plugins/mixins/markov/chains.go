@@ -1,10 +1,14 @@
-package markovchains
+package markov
 
 import (
+	"encoding/json"
 	"math/rand"
 	"strings"
-	"time"
+
+	"github.com/depado/go-b0tsec/database"
 )
+
+const bucketName = "markov"
 
 // PrefixLen is the number of words per Prefix defined as the key for the map.
 const PrefixLen = 2
@@ -65,16 +69,24 @@ func NewChain(key string) *Chain {
 	return &Chain{key, make(map[string][]string)}
 }
 
-// Init Initializes the markov chain
-func Init() error {
-	var err error
-	if err = InitBucketIfNotExists(); err != nil {
+// Encode encodes a chain to json.
+func (c *Chain) Encode() ([]byte, error) {
+	enc, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+	return enc, nil
+}
+
+// Decode decodes json to Chain
+func (c *Chain) Decode(data []byte) error {
+	if err := json.Unmarshal(data, c); err != nil {
 		return err
 	}
-	MainChain, err = GetChain("main")
-	if err != nil {
-		MainChain = NewChain("main")
-	}
-	rand.Seed(time.Now().UnixNano())
 	return nil
+}
+
+// Save saves the Data
+func (c Chain) Save() error {
+	return database.BotStorage.Save(bucketName, c.Key, &c)
 }

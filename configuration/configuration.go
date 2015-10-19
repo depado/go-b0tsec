@@ -9,11 +9,12 @@ import (
 
 // Configuration is the main struct that represents a configuration.
 type Configuration struct {
-	Server      string
-	Channel     string
-	BotName     string
-	TLS         bool
-	InsecureTLS bool
+	Server      string `yaml:"server"`
+	Channel     string `yaml:"channel"`
+	BotName     string `yaml:"bot_name"`
+	TLS         bool   `yaml:"tls"`
+	InsecureTLS bool   `yaml:"insecure_tls"`
+	ExternalRes bool   `yaml:"external_resources"`
 }
 
 // Config is the Configuration instance that will be exposed to the other packages.

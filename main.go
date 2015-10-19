@@ -9,7 +9,6 @@ import (
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/contentmanager"
 	"github.com/depado/go-b0tsec/database"
-	"github.com/depado/go-b0tsec/markovchains"
 	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
@@ -20,14 +19,13 @@ func main() {
 
 	// Argument parsing
 	confPath := flag.String("c", "conf/conf.yml", "Local path to configuration file.")
-	noExt := flag.Bool("no-external", false, "Disable the external resource collection.")
 	flag.Parse()
 
 	// Load the configuration of the bot
 	configuration.LoadConfiguration(*confPath)
 
 	// External resource initialization if needed
-	if !*noExt {
+	if configuration.Config.ExternalRes {
 		if err = contentmanager.LoadAndStartExternalResources(); err != nil {
 			log.Fatalf("Error Starting External Resources : %v", err)
 		}
@@ -45,10 +43,8 @@ func main() {
 		log.Fatalf("Something went wrong with the databse : %v", err)
 	}
 
-	// Markov chain initialization
-	if err = markovchains.Init(); err != nil {
-		log.Fatalf("Something went wrong with the markov chains : %v", err)
-	}
+	// Plugins initialization
+	plugins.Init()
 
 	// Bot initialization
 	ib := irc.IRC(configuration.Config.BotName, configuration.Config.BotName)
@@ -59,9 +55,6 @@ func main() {
 		}
 	}
 	ib.Connect(configuration.Config.Server)
-
-	// Plugins initialization
-	plugins.Init()
 
 	// Callback on 'Connected' event
 	ib.AddCallback("001", func(e *irc.Event) {

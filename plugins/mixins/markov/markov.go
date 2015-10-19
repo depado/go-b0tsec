@@ -5,7 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/markovchains"
+	"github.com/depado/go-b0tsec/database"
 	"github.com/thoj/go-ircevent"
 
 	"strings"
@@ -17,19 +17,19 @@ type Middleware struct{}
 // Get actually operates on the message
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
 	if from != configuration.Config.BotName {
-		if !strings.HasPrefix(message, "!") && len(strings.Fields(message)) > 3 {
+		if !strings.HasPrefix(message, "!") && len(strings.Fields(message)) > 3 && !strings.Contains(message, configuration.Config.BotName) {
 			message = strings.Replace(message, `"`, "", -1)
-			markovchains.MainChain.Build(message)
-			if err := markovchains.MainChain.Save(); err != nil {
+			MainChain.Build(message)
+			if err := MainChain.Save(); err != nil {
 				log.Println("Could not save to Bolt :", err)
 			}
 		}
 		if !strings.HasPrefix(message, "!") {
 			if rand.Intn(100) < 5 {
-				ib.Privmsg(configuration.Config.Channel, markovchains.MainChain.Generate())
+				ib.Privmsg(configuration.Config.Channel, MainChain.Generate())
 			} else {
 				if strings.Contains(message, configuration.Config.BotName) {
-					ib.Privmsg(to, markovchains.MainChain.Generate())
+					ib.Privmsg(to, MainChain.Generate())
 				}
 			}
 		}
@@ -38,6 +38,11 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 
 // NewMiddleware returns a new middleware
 func NewMiddleware() *Middleware {
+	MainChain = NewChain("main")
+	if err := database.BotStorage.CreateBucket(bucketName); err != nil {
+		log.Fatalf("While initializing Karma plugin : %s", err)
+	}
+	database.BotStorage.Get(bucketName, MainChain.Key, MainChain)
 	return new(Middleware)
 }
 
@@ -53,11 +58,11 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	if len(args) > 0 {
 		if i, ok := stringInSlice(">", args); ok && len(args) > i+1 {
-			ib.Privmsgf(to, "%v: %v", args[i+1], markovchains.MainChain.Generate())
+			ib.Privmsgf(to, "%v: %v", args[i+1], MainChain.Generate())
 		}
 		return
 	}
-	ib.Privmsg(to, markovchains.MainChain.Generate())
+	ib.Privmsg(to, MainChain.Generate())
 }
 
 // NewPlugin returns a new plugin

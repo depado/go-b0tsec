@@ -49,15 +49,16 @@ type Plugin struct {
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
 func (p Plugin) Help(ib *irc.Connection, from string) {
 	ib.Privmsg(from, "    Allows to add/remove/see karma points to/from a person.")
-	ib.Privmsg(from, "    Add/Remove : !karma [+|-] <nickname>")
-	ib.Privmsg(from, "    See : !karma = <nickname>")
+	ib.Privmsg(from, "    Add : !karma > nickname")
+	ib.Privmsg(from, "    Remove : !karma < nickname")
+	ib.Privmsg(from, "    See : !karma = nickname1 [nickname2, nickname3, ...]")
 }
 
 // Get is the actual call to your plugin.
 func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	if len(args) > 0 {
 		switch args[0] {
-		case "+", "-":
+		case "<", ">":
 			if len(args) > 1 {
 				if from != args[1] {
 					if val, ok := p.Action[from]; ok {
@@ -71,7 +72,7 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 					if val, ok := p.Karma[args[1]]; ok {
 						c = val
 					}
-					if args[0] == "+" {
+					if args[0] == ">" {
 						p.Karma[args[1]] = c + 1
 						ib.Privmsgf(configuration.Config.Channel, "Someone gave a karma point to %v, total %v", args[1], c+1)
 					} else {
