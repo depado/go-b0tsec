@@ -6,26 +6,28 @@ import (
 	"log"
 	"strings"
 
+	"github.com/thoj/go-ircevent"
+
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/contentmanager"
 	"github.com/depado/go-b0tsec/database"
 	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
-	"github.com/thoj/go-ircevent"
 )
 
 func main() {
 	var err error
 
 	// Argument parsing
-	confPath := flag.String("c", "conf/conf.yml", "Local path to configuration file.")
+	confPath := flag.String("c", "conf.yml", "Local path to configuration file.")
 	flag.Parse()
 
 	// Load the configuration of the bot
 	configuration.LoadConfiguration(*confPath)
+	cnf := configuration.Config
 
 	// External resource initialization if needed
-	if configuration.Config.ExternalRes {
+	if cnf.ExternalRes {
 		if err = contentmanager.LoadAndStartExternalResources(); err != nil {
 			log.Fatalf("Error Starting External Resources : %v", err)
 		}
@@ -47,18 +49,18 @@ func main() {
 	plugins.Init()
 
 	// Bot initialization
-	ib := irc.IRC(configuration.Config.BotName, configuration.Config.BotName)
-	if configuration.Config.TLS {
+	ib := irc.IRC(cnf.BotName, cnf.BotName)
+	if cnf.TLS {
 		ib.UseTLS = true
-		if configuration.Config.InsecureTLS {
+		if cnf.InsecureTLS {
 			ib.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 		}
 	}
-	ib.Connect(configuration.Config.Server)
+	ib.Connect(cnf.Server)
 
 	// Callback on 'Connected' event
 	ib.AddCallback("001", func(e *irc.Event) {
-		ib.Join(configuration.Config.Channel)
+		ib.Join(cnf.Channel)
 	})
 
 	// Callback on 'Message' event

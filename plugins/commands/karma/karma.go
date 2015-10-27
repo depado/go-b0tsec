@@ -3,6 +3,7 @@ package karma
 import (
 	"encoding/json"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/depado/go-b0tsec/configuration"
@@ -81,6 +82,9 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 					}
 					if err := p.Data.Save(); err != nil {
 						log.Println(err)
+					}
+					if len(args) > 2 {
+						ib.Privmsgf(configuration.Config.Channel, "Reason : %s", strings.Join(args[2:], " "))
 					}
 				} else {
 					ib.Notice(from, "Can't add or remove points to yourself.")
