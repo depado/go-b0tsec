@@ -12,7 +12,7 @@ import (
 
 const apiURL = "https://api.github.com/repos/%s/%s"
 
-var re, _ = regexp.Compile("https?://github.com/([^/]+)/([^/]+)/?")
+var re = regexp.MustCompile("https?://github.com/([^/]+)/([^/]+)/?")
 
 // Middleware is the github middleware
 type Middleware struct{}

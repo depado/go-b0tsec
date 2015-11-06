@@ -15,6 +15,8 @@ type Configuration struct {
 	TLS         bool   `yaml:"tls"`
 	InsecureTLS bool   `yaml:"insecure_tls"`
 	ExternalRes bool   `yaml:"external_resources"`
+	Middlewares []string
+	Plugins     []string
 }
 
 // Config is the Configuration instance that will be exposed to the other packages.

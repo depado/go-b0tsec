@@ -1,11 +1,16 @@
 package plugins
 
 import (
+	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/plugins/commands/anon"
+	"github.com/depado/go-b0tsec/plugins/commands/dice"
+	"github.com/depado/go-b0tsec/plugins/commands/duckduckgo"
 	"github.com/depado/go-b0tsec/plugins/commands/karma"
+	"github.com/depado/go-b0tsec/plugins/commands/seen"
 	"github.com/depado/go-b0tsec/plugins/commands/urban"
 	"github.com/depado/go-b0tsec/plugins/middlewares/github"
 	"github.com/depado/go-b0tsec/plugins/middlewares/logger"
+	"github.com/depado/go-b0tsec/plugins/mixins/afk"
 	"github.com/depado/go-b0tsec/plugins/mixins/markov"
 	"github.com/thoj/go-ircevent"
 )
@@ -39,15 +44,39 @@ func RegisterMiddleware(m Middleware) {
 
 // Init initializes all the plugins and middlewares.
 func Init() {
-	RegisterMiddleware(logger.NewMiddleware())
-	RegisterMiddleware(github.NewMiddleware())
-	RegisterMiddleware(markov.NewMiddleware())
-	RegisterCommand("ud", urban.NewPlugin())
-	RegisterCommand("ddg", urban.NewPlugin())
-	RegisterCommand("anon", anon.NewPlugin())
-	RegisterCommand("markov", markov.NewPlugin())
-	RegisterCommand("karma", karma.NewPlugin())
-	RegisterCommand("help", new(Help))
+	cnf := configuration.Config
+	for _, p := range cnf.Plugins {
+		switch p {
+		case "ud":
+			RegisterCommand("ud", urban.NewPlugin())
+		case "ddg":
+			RegisterCommand("ddg", duckduckgo.NewPlugin())
+		case "anon":
+			RegisterCommand("anon", anon.NewPlugin())
+		case "markov":
+			RegisterCommand("markov", markov.NewPlugin())
+		case "karma":
+			RegisterCommand("karma", karma.NewPlugin())
+		case "dice":
+			RegisterCommand("dice", dice.NewPlugin())
+		case "seen":
+			RegisterCommand("seen", seen.NewPlugin())
+		case "afk":
+			RegisterCommand("afk", afk.NewPlugin())
+		}
+	}
+	for _, m := range cnf.Middlewares {
+		switch m {
+		case "logger":
+			RegisterMiddleware(logger.NewMiddleware())
+		case "github":
+			RegisterMiddleware(github.NewMiddleware())
+		case "markov":
+			RegisterMiddleware(markov.NewMiddleware())
+		case "afk":
+			RegisterMiddleware(afk.NewMiddleware())
+		}
+	}
 }
 
 // Help is the help plugin. Builtin.

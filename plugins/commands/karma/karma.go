@@ -3,6 +3,7 @@ package karma
 import (
 	"encoding/json"
 	"log"
+	"sort"
 	"strings"
 	"time"
 
@@ -18,6 +19,19 @@ const mainKey = "main"
 type Data struct {
 	Karma map[string]int
 }
+
+// Pair is used to sort the map
+type Pair struct {
+	Key   string
+	Value int
+}
+
+// PairList is a list of Pair
+type PairList []Pair
+
+func (p PairList) Len() int           { return len(p) }
+func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // Encode encodes a chain to json.
 func (d Data) Encode() ([]byte, error) {
@@ -95,12 +109,21 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 			}
 		case "=":
 			if len(args) > 1 {
+				nrec := false
+				pl := make(PairList, 0)
 				for _, n := range args[1:] {
 					if val, ok := p.Karma[n]; ok {
-						ib.Privmsgf(to, "%v has %v point(s).", n, val)
+						pl = append(pl, Pair{n, val})
 					} else {
-						ib.Privmsgf(to, "I don't have records on %v.", n)
+						nrec = true
 					}
+				}
+				sort.Sort(sort.Reverse(pl))
+				for _, v := range pl {
+					ib.Privmsgf(to, "%v has %v point(s)", v.Key, v.Value)
+				}
+				if nrec {
+					ib.Privmsg(to, "No record for the others.")
 				}
 			} else {
 				ib.Notice(from, "Need at least a nickname.")
