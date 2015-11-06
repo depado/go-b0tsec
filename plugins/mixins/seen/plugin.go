@@ -13,7 +13,7 @@ type Plugin struct{}
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    This command does this and that. For example this. And that.")
+	ib.Privmsg(from, "    Displays if someone is afk or the time since their last message.")
 }
 
 // Get is the actual call to your plugin.
@@ -28,6 +28,10 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 					ib.Privmsgf(to, "%v has been afk for %v : %v", v, time.Since(d.Since), d.Reason)
 				} else {
 					ib.Privmsgf(to, "%v has been afk for %v", v, time.Since(d.Since))
+				}
+			} else {
+				if d, ok := Map[v]; ok {
+					ib.Privmsgf(to, "Last message from %v : %v ago.", v, time.Since(d))
 				}
 			}
 		}

@@ -6,12 +6,12 @@ import (
 	"github.com/depado/go-b0tsec/plugins/commands/dice"
 	"github.com/depado/go-b0tsec/plugins/commands/duckduckgo"
 	"github.com/depado/go-b0tsec/plugins/commands/karma"
-	"github.com/depado/go-b0tsec/plugins/commands/seen"
 	"github.com/depado/go-b0tsec/plugins/commands/urban"
 	"github.com/depado/go-b0tsec/plugins/middlewares/github"
 	"github.com/depado/go-b0tsec/plugins/middlewares/logger"
 	"github.com/depado/go-b0tsec/plugins/mixins/afk"
 	"github.com/depado/go-b0tsec/plugins/mixins/markov"
+	"github.com/depado/go-b0tsec/plugins/mixins/seen"
 	"github.com/thoj/go-ircevent"
 )
 
@@ -75,6 +75,8 @@ func Init() {
 			RegisterMiddleware(markov.NewMiddleware())
 		case "afk":
 			RegisterMiddleware(afk.NewMiddleware())
+		case "seen":
+			RegisterMiddleware(seen.NewMiddleware())
 		}
 	}
 }
