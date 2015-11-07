@@ -1,6 +1,7 @@
 package duckduckgo
 
 import (
+	"log"
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
@@ -8,7 +9,7 @@ import (
 	"github.com/thoj/go-ircevent"
 )
 
-const apiURL = "http://api.duckduckgo.com/?q=%s&format=json%s"
+const apiURL = "http://api.duckduckgo.com/?q=%s&format=json"
 
 type message struct {
 	Definition       string
@@ -53,6 +54,9 @@ func (p Plugin) Get(ircbot *irc.Connection, from string, to string, args []strin
 	if len(args) > 0 {
 		res, err := p.fetch(strings.Join(args, " "))
 		if err != nil || res == "" {
+			if err != nil {
+				log.Println(err)
+			}
 			return
 		}
 		ircbot.Privmsg(configuration.Config.Channel, res)
@@ -62,8 +66,7 @@ func (p Plugin) Get(ircbot *irc.Connection, from string, to string, args []strin
 func (p Plugin) fetch(query string) (string, error) {
 	var t message
 	url := utils.EncodeURL(apiURL, query)
-	err := utils.FetchURL(url, &t)
-	if err != nil {
+	if err := utils.FetchURL(url, &t); err != nil {
 		return "", err
 	}
 	return t.Abstract, nil
