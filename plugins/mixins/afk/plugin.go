@@ -12,7 +12,7 @@ type Plugin struct{}
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    This command does this and that. For example this. And that.")
+	ib.Privmsg(from, "    Tell the world you're afk, for a reason. Or not. Example : !afk reason.")
 }
 
 // Get is the actual call to your plugin.
