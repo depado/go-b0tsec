@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/plugins/mixins/afk"
+	"github.com/depado/go-b0tsec/plugins/afk"
 	"github.com/thoj/go-ircevent"
 )
 
@@ -25,13 +25,13 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 		for _, v := range args {
 			if d, ok := afk.Map[v]; ok {
 				if d.Reason != "" {
-					ib.Privmsgf(to, "%v has been afk for %v : %v", v, time.Since(d.Since), d.Reason)
+					ib.Privmsgf(to, "%v has been afk for %v : %v", v, time.Since(d.Since).String(), d.Reason)
 				} else {
-					ib.Privmsgf(to, "%v has been afk for %v", v, time.Since(d.Since))
+					ib.Privmsgf(to, "%v has been afk for %v", v, time.Since(d.Since).String())
 				}
 			} else {
 				if d, ok := Map[v]; ok {
-					ib.Privmsgf(to, "Last message from %v : %v ago.", v, time.Since(d))
+					ib.Privmsgf(to, "Last message from %v : %v ago.", v, time.Since(d).String())
 				}
 			}
 		}

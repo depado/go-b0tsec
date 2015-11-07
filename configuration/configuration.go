@@ -17,6 +17,7 @@ type Configuration struct {
 	ExternalRes bool   `yaml:"external_resources"`
 	Middlewares []string
 	Plugins     []string
+	YoutubeKey  string `yaml:"youtube_key"`
 }
 
 // Config is the Configuration instance that will be exposed to the other packages.

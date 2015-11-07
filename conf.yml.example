@@ -1,0 +1,24 @@
+bot_name:     AwesomeBot
+server:       irc.freenode.net:6667
+channel:      "#AwesomeChan"
+tls:          false
+insecure_tls: false
+external_resources: false
+youtube_key: "YouThoughtIWasGoingToVersionThatDidntYou?"
+plugins:
+    - ud
+    - ddg
+    - anon
+    - markov
+    - karma
+    - help
+    - dice
+    - afk
+    - seen
+middlewares:
+    - logger
+    - github
+    - markov
+    - afk
+    - seen
+    - youtube

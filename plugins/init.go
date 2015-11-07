@@ -2,16 +2,17 @@ package plugins
 
 import (
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/plugins/commands/anon"
-	"github.com/depado/go-b0tsec/plugins/commands/dice"
-	"github.com/depado/go-b0tsec/plugins/commands/duckduckgo"
-	"github.com/depado/go-b0tsec/plugins/commands/karma"
-	"github.com/depado/go-b0tsec/plugins/commands/urban"
-	"github.com/depado/go-b0tsec/plugins/middlewares/github"
-	"github.com/depado/go-b0tsec/plugins/middlewares/logger"
-	"github.com/depado/go-b0tsec/plugins/mixins/afk"
-	"github.com/depado/go-b0tsec/plugins/mixins/markov"
-	"github.com/depado/go-b0tsec/plugins/mixins/seen"
+	"github.com/depado/go-b0tsec/plugins/afk"
+	"github.com/depado/go-b0tsec/plugins/anon"
+	"github.com/depado/go-b0tsec/plugins/dice"
+	"github.com/depado/go-b0tsec/plugins/duckduckgo"
+	"github.com/depado/go-b0tsec/plugins/github"
+	"github.com/depado/go-b0tsec/plugins/karma"
+	"github.com/depado/go-b0tsec/plugins/logger"
+	"github.com/depado/go-b0tsec/plugins/markov"
+	"github.com/depado/go-b0tsec/plugins/seen"
+	"github.com/depado/go-b0tsec/plugins/urban"
+	"github.com/depado/go-b0tsec/plugins/youtube"
 	"github.com/thoj/go-ircevent"
 )
 
@@ -77,6 +78,8 @@ func Init() {
 			RegisterMiddleware(afk.NewMiddleware())
 		case "seen":
 			RegisterMiddleware(seen.NewMiddleware())
+		case "youtube":
+			RegisterMiddleware(youtube.NewMiddleware())
 		}
 	}
 }
