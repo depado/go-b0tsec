@@ -63,10 +63,10 @@ type Plugin struct {
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    Allows to add/remove/see karma points to/from a person.")
-	ib.Privmsg(from, "    Add : !karma > nickname")
-	ib.Privmsg(from, "    Remove : !karma < nickname")
-	ib.Privmsg(from, "    See : !karma = nickname1 [nickname2, nickname3, ...]")
+	ib.Privmsg(from, "Allows to add/remove/see karma points to/from/of a person.")
+	ib.Privmsg(from, "Add : !karma > nickname [optional reason]")
+	ib.Privmsg(from, "Remove : !karma < nickname [optional reason]")
+	ib.Privmsg(from, "See : !karma = nickname1 [nickname2, nickname3, ...]")
 }
 
 // Get is the actual call to your plugin.

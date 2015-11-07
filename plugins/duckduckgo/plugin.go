@@ -45,8 +45,8 @@ type Plugin struct{}
 
 // Help provides some help on the plugin
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    Search directly on DuckDuckGo.")
-	ib.Privmsg(from, "    Example : !command Who is James Cameron ?")
+	ib.Privmsg(from, "Search directly on DuckDuckGo.")
+	ib.Privmsg(from, "Example : !ddg Who is James Cameron ?")
 }
 
 // Get actually sends the data to the channel

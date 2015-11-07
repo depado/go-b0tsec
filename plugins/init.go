@@ -1,6 +1,8 @@
 package plugins
 
 import (
+	"strings"
+
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/plugins/afk"
 	"github.com/depado/go-b0tsec/plugins/anon"
@@ -82,6 +84,7 @@ func Init() {
 			RegisterMiddleware(youtube.NewMiddleware())
 		}
 	}
+	RegisterCommand("help", new(Help))
 }
 
 // Help is the help plugin. Builtin.
@@ -90,10 +93,12 @@ type Help struct{}
 // Get actually executes the command.
 func (h Help) Get(ib *irc.Connection, from string, to string, args []string) {
 	if len(args) == 0 {
-		for k, p := range Plugins {
-			ib.Privmsgf(from, "Command %s :", k)
-			p.Help(ib, from)
+		ib.Privmsg(from, "Available commands (!help <command> to get more info) :")
+		keys := []string{}
+		for k := range Plugins {
+			keys = append(keys, k)
 		}
+		ib.Privmsg(from, strings.Join(keys, " "))
 	} else {
 		if p, ok := Plugins[args[0]]; ok {
 			p.Help(ib, from)
@@ -103,6 +108,7 @@ func (h Help) Get(ib *irc.Connection, from string, to string, args []string) {
 
 // Help shows the help for the plugin.
 func (h Help) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    With argument : Show the help for a specific argument (e.g : !help ud).")
-	ib.Privmsg(from, "    Without argument : Shows the help for all the known commands.")
+	ib.Privmsg(from, "So you need help using the help command to get help about other commands ?")
+	ib.Privmsg(from, "With argument : Show the help for a specific argument (e.g : !help ud).")
+	ib.Privmsg(from, "Without argument : Shows the available commands.")
 }

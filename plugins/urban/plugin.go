@@ -39,9 +39,9 @@ type Plugin struct {
 
 // Help must send the help about this plugin.
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    Allows to search a term on the Urban Dictionnary")
-	ib.Privmsg(from, "    Optional argument : moar - Allows to search another definition from the previous search.")
-	ib.Privmsg(from, "    Optional argument : quote - Allows to search a quote from the previous search.")
+	ib.Privmsg(from, "Allows to search a term on the Urban Dictionnary")
+	ib.Privmsg(from, "Optional argument : moar - Allows to search another definition from the previous search.")
+	ib.Privmsg(from, "Optional argument : quote - Allows to search a quote from the previous search.")
 }
 
 // Get actually sends the data to the channel.

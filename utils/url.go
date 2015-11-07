@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -17,6 +18,7 @@ func EncodeURL(apiURL, query string) string {
 func FetchURL(url string, out interface{}) error {
 	resp, err := http.Get(url)
 	if err != nil {
+		log.Print("Something went wrong")
 		return err
 	}
 	defer resp.Body.Close()

@@ -7,7 +7,9 @@ type Plugin struct{}
 
 // Help displays the help for the plugin
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    This command generates a random sentence using the markov chains.")
+	ib.Privmsg(from, "This command generates a random sentence using the markov chains.")
+	ib.Privmsg(from, "Example : !markov")
+	ib.Privmsg(from, "Example with a target : !markov > nickname")
 }
 
 // Get actually acts

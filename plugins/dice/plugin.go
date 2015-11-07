@@ -17,7 +17,8 @@ type Plugin struct{}
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "    Throws a dice. Example : !dice 1d100")
+	ib.Privmsg(from, "Throws x n-faced dice(s) in the form of 'xdn'")
+	ib.Privmsg(from, "Example with 2 20-faced dices : !dice 2d20")
 }
 
 // Get is the actual call to your plugin.
