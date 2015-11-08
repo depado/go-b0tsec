@@ -13,6 +13,7 @@ import (
 	"github.com/depado/go-b0tsec/plugins/logger"
 	"github.com/depado/go-b0tsec/plugins/markov"
 	"github.com/depado/go-b0tsec/plugins/seen"
+	"github.com/depado/go-b0tsec/plugins/title"
 	"github.com/depado/go-b0tsec/plugins/urban"
 	"github.com/depado/go-b0tsec/plugins/youtube"
 	"github.com/thoj/go-ircevent"
@@ -82,6 +83,8 @@ func Init() {
 			RegisterMiddleware(seen.NewMiddleware())
 		case "youtube":
 			RegisterMiddleware(youtube.NewMiddleware())
+		case "title":
+			RegisterMiddleware(title.NewMiddleware())
 		}
 	}
 	RegisterCommand("help", new(Help))
