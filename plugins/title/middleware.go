@@ -46,7 +46,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 							tt = z.Next()
 							t = z.Token()
 							if fURL != rs[0][0] {
-								ib.Privmsgf(to, "%v (%v)", t.Data, finalURL)
+								ib.Privmsgf(to, "%v (%v)", t.Data, fURL)
 							} else {
 								ib.Privmsg(to, t.Data)
 							}
