@@ -33,6 +33,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 					return
 				}
 				defer resp.Body.Close()
+				fURL := resp.Request.URL.String()
 				z := html.NewTokenizer(resp.Body)
 				for {
 					tt := z.Next()
@@ -44,7 +45,11 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 						if t.Data == "title" {
 							tt = z.Next()
 							t = z.Token()
-							ib.Privmsg(to, t.Data)
+							if fURL != rs[0][0] {
+								ib.Privmsgf(to, "%v (%v)", t.Data, finalURL)
+							} else {
+								ib.Privmsg(to, t.Data)
+							}
 							return
 						}
 					}
