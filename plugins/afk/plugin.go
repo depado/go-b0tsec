@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/depado/go-b0tsec/configuration"
 	"github.com/thoj/go-ircevent"
 )
 
@@ -24,9 +25,9 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	}
 	Map[from] = Data{time.Now(), reason}
 	if reason != "" {
-		ib.Privmsgf(to, "%v is afk : %v", from, reason)
+		ib.Privmsgf(configuration.Config.Channel, "%v is afk : %v", from, reason)
 	} else {
-		ib.Privmsgf(to, "%v is afk.", from)
+		ib.Privmsgf(configuration.Config.Channel, "%v is afk.", from)
 	}
 }
 
