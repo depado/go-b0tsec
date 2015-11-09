@@ -5,39 +5,96 @@
 
 # Go-b0tsec
 
-A pretty simple IRC Bot with plugins and middlewares.
+IRC bot written in Go with plugins and middlewares.
+
+ - [Configuration](#configuration)
+ - [Plugins](#plugins)
+ - [Middlewares](#middlewares)
+ - [Mixins](#mixins)
+ - [Contributing](#contributing)
+ - [License](#license)
+
+## Configuration
+
+This bot is intended to be simple to configure and as such, will use a yaml configuration file. Some values are needed to use some plugins or middlewares.
+
+```yaml
+# Bot Connection
+bot_name:     awesomebot
+server:       irc.freenode.net:6667
+channel:      "#awesomechan"
+tls:          false
+insecure_tls: false
+# Other Behavior
+external_resources: false
+youtube_key: "YourVeryOwnYoutubeAPIKey"
+plugins:
+    - ud
+    - ddg
+    - anon
+    - markov
+    - karma
+    - help
+    - dice
+    - afk
+    - seen
+middlewares:
+    - logger
+    - github
+    - markov
+    - afk
+    - seen
+    - youtube
+    - title
+```
+
+ - `bot_name` : The name of your bot as it will appear on the channel.
+ - `server` : The server on which you want to connect. Port is mandatory.
+ - `channel` : The channel the bot should join when connected to the server.
+ - `tls` : Whether or not to use TLS when connecting to the server.
+ - `insecure_tls` : Ignore TLS errors (self signed certificate for example)
+ - `external_resources` : Whether or not to fetch external resources defined in the `conf/external/active` directory.
+ - `youtube_key` : Your own google API key to fetch the Youtube API.
+ - `plugins` : Names of the plugins you want to activate.
+ - `middlewares` : Names of the middlewares you want to activate.
+
+Small note about the external resource collection. It works pretty fine but has quite nothing to do here. You can obviously use it if you want but it will be removed at one point because this package is now in a different repository.
 
 ## Plugins
 
-A plugin is a command. End of definition. Each plugin is mapped with a command.  
-To create your own plugin, take a look at the [plugins/commands/examples](https://github.com/Depado/go-b0tsec/tree/master/plugins/commands/example) directory to see an example.
+A plugin is a command, which can be called using the "!command" syntax. It's the most usual thing you'll ever see with IRC bots.
+To create your own plugin, take a look at the [plugins/example/plugin.go](https://github.com/Depado/go-b0tsec/tree/master/plugins/example/plugin.go) file which is fairly well documented.  
+
+To create more complex commands (with state stored in the `Plugin` structure for example) you can take a look at the already written plugins such as `ud` (the Urban Dictionnary plugin).
 
 To write a plugin you need to satisfy the Plugin interface which is defined like that :
 
 ```go
-// Plugin represents a single plugin. The Get method is use to send things.
 type Plugin interface {
 	Get(*irc.Connection, string, string, []string)
 	Help(*irc.Connection, string)
 }
 ```
 
-I'd advise you to create a new package for each plugin and always call your plugin struct "Plugin", so that the API can remain stable and uniform.  
-You can then register your plugin like that :
-
+You will then need to register your plugin. There are two techniques to do that :
 ```go
-RegisterCommand("command", new(myplugin.Plugin))
+RegisterCommand("myplugin", myplugin.NewPlugin())
+// Or
+RegisterCommand("myplugin", new(myplugin.Plugin))
 ```
+I would advise to always use the first method as it allows you to initialize some data when registering your plugin. This is usually done in the [plugins/init.go](https://github.com/Depado/go-b0tsec/tree/master/plugins/init.go) file but you can register your plugins anywhere in your code.
 
 ## Middlewares
 
-A middleware is a function that is executed each time a message is sent, no matter what. The term "middleware" may not be the smartest choice there, but it kind of felt like a middleware so...  
+A middleware is a function that is executed each time a message is received by the bot.  
+
 I see middlewares as a way to monitor and react to things that are being said on a channel without the users specifically calling for the bot. As an example you can check the github middleware that will send the description of a github repository each time it finds a github link in a message.
+
+**Note : These middlewares are not chained. (One middleware doesn't impact the other ones)**
 
 To write your own middleware you need to satisfy the Middleware interface which is defined like that :
 
 ```go
-// Middleware represents a single middleware.
 type Middleware interface {
 	Get(*irc.Connection, string, string, string)
 }
@@ -47,10 +104,22 @@ As for the plugins, I'd advise you to create a package per middleware, and call 
 You can then register your middleware like that :
 
 ```go
+RegisterMiddleware(mymiddleware.NewMiddleware())
+// Or
 RegisterMiddleware(new(mymiddleware.Middleware))
 ```
 
-### License ###
+I'd also recommend the first way of registering your middleware as it allows you to initialize some data in your `Middleware` struct.
+
+## Mixins
+
+Sometimes you'll want to link the plugin capabilities with the middleware capabilites. One example is the `markov` plugin. It both parses everything that is sent on the channel, and also has the `!markov` command to ask for a random generated message. Keep your code clean and separate the plugin and the middleware by creating two separate files (`middleware.go` and `plugin.go`) even if they are both in the same package.
+
+## Contributing
+
+I'm open to any kind of issue and pull requests. Pull requests will only be accepted if they respect the coding style described above and if the plugin/middleware is relevant. You can also modify the core of the bot, although I'll be slightly more exigent about what you put in there. Otherwise you can just tweak the bot to fit your own needs and never make a pull request, I'm also fine with that.
+
+## License
 ```
 DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 		Version 2, December 2004

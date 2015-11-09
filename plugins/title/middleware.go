@@ -45,10 +45,14 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 						if t.Data == "title" {
 							tt = z.Next()
 							t = z.Token()
+							d := t.Data
+							if len(d) > 450 {
+								d = d[:450]
+							}
 							if fURL != rs[0][0] {
-								ib.Privmsgf(to, "%v (%v)", t.Data, fURL)
+								ib.Privmsgf(to, "%v (%v)", d, fURL)
 							} else {
-								ib.Privmsg(to, t.Data)
+								ib.Privmsg(to, d)
 							}
 							return
 						}
