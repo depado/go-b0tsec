@@ -12,7 +12,7 @@ import (
 
 const apiURL = "https://api.github.com/repos/%s/%s%s"
 
-var re = regexp.MustCompile("https?://github.com/([^/]+)/([^/]+)(/([^/]+)/[^/]+)?")
+var re = regexp.MustCompile("https?://github.com/([^/]+)/([^/]+)(/([^/]+)/[0-9]+)?")
 
 // Middleware is the github middleware
 type Middleware struct{}
@@ -27,6 +27,7 @@ type RepoInfo struct {
 type IssueInfo struct {
 	Title string `json:"title"`
 	State string `json:"state"`
+	Number int `json:"number"`
 }
 
 // Get actually sends the data
@@ -47,7 +48,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 						} else {
 							ri.State = "\x0304Closed\x0F\x03"
 						}
-						extraStr = fmt.Sprintf(" | %s - Status : %s", ri.Title, ri.State)
+						extraStr = fmt.Sprintf(" | #%4d %s - Status : %s", ri.Number, ri.Title, ri.State)
 					}
 				}
 			}
