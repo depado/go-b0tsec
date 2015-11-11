@@ -6,6 +6,7 @@ import (
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/plugins/afk"
 	"github.com/depado/go-b0tsec/plugins/anon"
+	"github.com/depado/go-b0tsec/plugins/choice"
 	"github.com/depado/go-b0tsec/plugins/dice"
 	"github.com/depado/go-b0tsec/plugins/duckduckgo"
 	"github.com/depado/go-b0tsec/plugins/github"
@@ -14,6 +15,7 @@ import (
 	"github.com/depado/go-b0tsec/plugins/markov"
 	"github.com/depado/go-b0tsec/plugins/seen"
 	"github.com/depado/go-b0tsec/plugins/title"
+	"github.com/depado/go-b0tsec/plugins/translate"
 	"github.com/depado/go-b0tsec/plugins/urban"
 	"github.com/depado/go-b0tsec/plugins/youtube"
 	"github.com/thoj/go-ircevent"
@@ -67,6 +69,10 @@ func Init() {
 			RegisterCommand("seen", seen.NewPlugin())
 		case "afk":
 			RegisterCommand("afk", afk.NewPlugin())
+		case "choice":
+			RegisterCommand("choice", choice.NewPlugin())
+		case "translate":
+			RegisterCommand("translate", translate.NewPlugin())
 		}
 	}
 	for _, m := range cnf.Middlewares {

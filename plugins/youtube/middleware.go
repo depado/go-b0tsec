@@ -21,18 +21,20 @@ type Middleware struct{}
 // Get actually sends the data
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: configuration.Config.YoutubeKey},
+		Transport: &transport.APIKey{Key: configuration.Config.GoogleAPIKey},
 	}
 	for _, bit := range strings.Fields(message) {
 		rs := ytre.FindAllStringSubmatch(bit, -1)
 		if len(rs) > 0 {
 			service, err := yt.New(client)
 			if err != nil {
-				log.Fatalf("Error creating new YouTube client: %v", err)
+				log.Printf("Error creating new YouTube client: %v\n", err)
+				return
 			}
 			response, err := service.Videos.List("snippet, statistics, contentDetails").Id(rs[0][1]).Do()
 			if err != nil {
 				log.Println(err)
+				return
 			}
 			for _, val := range response.Items {
 				t := strings.Replace(val.ContentDetails.Duration[2:len(val.ContentDetails.Duration)-1], "M", ":", -1)

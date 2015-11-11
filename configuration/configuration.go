@@ -9,14 +9,15 @@ import (
 
 // Configuration is the main struct that represents a configuration.
 type Configuration struct {
-	Server      string `yaml:"server"`
-	Channel     string `yaml:"channel"`
-	BotName     string `yaml:"bot_name"`
-	TLS         bool   `yaml:"tls"`
-	InsecureTLS bool   `yaml:"insecure_tls"`
-	Middlewares []string
-	Plugins     []string
-	YoutubeKey  string `yaml:"youtube_key"`
+	Server       string   `yaml:"server"`
+	Channel      string   `yaml:"channel"`
+	BotName      string   `yaml:"bot_name"`
+	TLS          bool     `yaml:"tls"`
+	InsecureTLS  bool     `yaml:"insecure_tls"`
+	Middlewares  []string `yaml:"middlewares"`
+	Plugins      []string `yaml:"plugins"`
+	GoogleAPIKey string   `yaml:"google_api_key"`
+	Lang         string   `yaml:"lang"`
 }
 
 // Config is the Configuration instance that will be exposed to the other packages.
