@@ -61,8 +61,8 @@ func throw(times int, dice int) string {
 	ds := make([]string, times)
 	for i := 0; i < times; i++ {
 		c := rand.Intn(dice)
-		tot += c
-		ds[i] = strconv.Itoa(c)
+		tot += c + 1
+		ds[i] = strconv.Itoa(c + 1)
 	}
 	if times > 1 {
 		return strings.Join(ds, " + ") + " = " + strconv.Itoa(tot)

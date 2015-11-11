@@ -14,7 +14,6 @@ type Configuration struct {
 	BotName     string `yaml:"bot_name"`
 	TLS         bool   `yaml:"tls"`
 	InsecureTLS bool   `yaml:"insecure_tls"`
-	ExternalRes bool   `yaml:"external_resources"`
 	Middlewares []string
 	Plugins     []string
 	YoutubeKey  string `yaml:"youtube_key"`
@@ -23,8 +22,8 @@ type Configuration struct {
 // Config is the Configuration instance that will be exposed to the other packages.
 var Config = new(Configuration)
 
-// LoadConfiguration parses the yml file passed as argument and fills the Config.
-func LoadConfiguration(cp string) {
+// Load parses the yml file passed as argument and fills the Config.
+func Load(cp string) {
 	conf, err := ioutil.ReadFile(cp)
 	if err != nil {
 		log.Fatalf("Could not read configuration : %v", err)

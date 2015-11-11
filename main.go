@@ -9,7 +9,6 @@ import (
 	"github.com/thoj/go-ircevent"
 
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/contentmanager"
 	"github.com/depado/go-b0tsec/database"
 	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
@@ -23,15 +22,8 @@ func main() {
 	flag.Parse()
 
 	// Load the configuration of the bot
-	configuration.LoadConfiguration(*confPath)
+	configuration.Load(*confPath)
 	cnf := configuration.Config
-
-	// External resource initialization if needed
-	if cnf.ExternalRes {
-		if err = contentmanager.LoadAndStartExternalResources(); err != nil {
-			log.Fatalf("Error Starting External Resources : %v", err)
-		}
-	}
 
 	// Loggers initialization
 	if err = utils.InitLoggers(); err != nil {
@@ -56,7 +48,9 @@ func main() {
 			ib.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 		}
 	}
-	ib.Connect(cnf.Server)
+	if err = ib.Connect(cnf.Server); err != nil {
+		log.Fatal(err)
+	}
 
 	// Callback on 'Connected' event
 	ib.AddCallback("001", func(e *irc.Event) {
