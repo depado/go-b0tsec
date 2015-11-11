@@ -73,9 +73,9 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 						if ri.State == "open" {
 							ri.State = "\x0303Opened\x03"
 						} else {
-							ri.State = "\x0304Closed\x03"
+							ri.State = "\x0304Closed\x0F\x03"
 						}
-						extraStr = fmt.Sprintf(" | #%4d %s - Status : %s", ri.Number, ri.Title, ri.State)
+						extraStr = fmt.Sprintf("| #%4d %s - Status : %s", ri.Number, ri.Title, ri.State)
 					}
 				} else if strings.HasPrefix(rs[0][4], "commit/") {
 					// If commit, get its info
@@ -83,14 +83,13 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 					ri := CommitInfo{}
 					err := utils.FetchURL(endpoint, &ri)
 					if err == nil {
-						extraStr = fmt.Sprintf(" | %s <%s> committed “%v”", ri.Commit.Author.Name, ri.Commit.Author.Email, strings.Replace(ri.Commit.Message, "\n", " ", -1))
+						extraStr = fmt.Sprintf("| %s <%s> committed “%v”", ri.Commit.Author.Name, ri.Commit.Author.Email, strings.Replace(ri.Commit.Message, "\n", " ", -1))
 					}
 				} else if strings.HasPrefix(rs[0][4], "pull/") {
 					// If pull request, get its info
 					endpoint := fmt.Sprintf(apiURL, rs[0][1], rs[0][2], strings.Replace(rs[0][3], "/pull/", "/pulls/", 1))
 					ri := PullRequestInfo{}
 					err := utils.FetchURL(endpoint, &ri)
-					fmt.Println(ri)
 					if err == nil && len(ri.State) > 0 {
 						var status string
 						if ri.State == "open" {
@@ -106,7 +105,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 								status = "\x0304Closed and not merged\x03"
 							}
 						}
-						extraStr = fmt.Sprintf(" | %s PR %s by %s : \x0303+%d\x03 \x0304-%d\x03 in %d commits across %d files", status, ri.Title, ri.User.Login, ri.Additions, ri.Deletions, ri.Commits, ri.ChangedFiles)
+						extraStr = fmt.Sprintf("| %s PR %s by %s : \x0303+%d\x03 \x0304-%d\x0F\x03 in %d commits across %d files", status, ri.Title, ri.User.Login, ri.Additions, ri.Deletions, ri.Commits, ri.ChangedFiles)
 					}
 				}
 			}
