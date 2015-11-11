@@ -26,7 +26,6 @@ channel:      "#awesomechan"
 tls:          false
 insecure_tls: false
 # Other Behavior
-external_resources: false
 youtube_key: "YourVeryOwnYoutubeAPIKey"
 plugins:
     - ud
@@ -53,12 +52,13 @@ middlewares:
  - `channel` : The channel the bot should join when connected to the server.
  - `tls` : Whether or not to use TLS when connecting to the server.
  - `insecure_tls` : Ignore TLS errors (self signed certificate for example)
- - `external_resources` : Whether or not to fetch external resources defined in the `conf/external/active` directory.
  - `youtube_key` : Your own google API key to fetch the Youtube API.
  - `plugins` : Names of the plugins you want to activate.
  - `middlewares` : Names of the middlewares you want to activate.
 
-Small note about the external resource collection. It works pretty fine but has quite nothing to do here. You can obviously use it if you want but it will be removed at one point because this package is now in a different repository.
+**Note : If you don't want to use Youtube capabilities or don't want to create an API key, then make sure to disable the `youtube` middleware**
+
+**Update : The external resource collection has now moved to a different repository. See [Depado/periodic-file-fetcher](https://github.com/Depado/periodic-file-fetcher) to use this within your bot.**
 
 ## Plugins
 
@@ -114,6 +114,23 @@ I'd also recommend the first way of registering your middleware as it allows you
 ## Mixins
 
 Sometimes you'll want to link the plugin capabilities with the middleware capabilites. One example is the `markov` plugin. It both parses everything that is sent on the channel, and also has the `!markov` command to ask for a random generated message. Keep your code clean and separate the plugin and the middleware by creating two separate files (`middleware.go` and `plugin.go`) even if they are both in the same package.
+
+## Available Plugins and Middlewares
+
+Each plugin and/or middleware can have its own README.md file living inside it. If there is no explanation on the plugin it means that it's simple enough to get the basics by just reading the comments.
+
+ - [afk : Tell the world you're away. For a specific reason. Or not.](https://github.com/Depado/go-b0tsec/tree/master/plugins/afk)
+ - [anon : Saying thins anonymously on the channel the bot lives in.](https://github.com/Depado/go-b0tsec/tree/master/plugins/anon)
+ - [dice : Throw some dices. (Don't lie, I know you want to.)](https://github.com/Depado/go-b0tsec/tree/master/plugins/dice)
+ - [ddg : Search stuff directly on duckduckgo.](https://github.com/Depado/go-b0tsec/tree/master/plugins/duckduckgo)
+ - [karma : Take or give karma points to people.](https://github.com/Depado/go-b0tsec/tree/master/plugins/karma)
+ - [logger : Log the whole history and links that are sent to files.](https://github.com/Depado/go-b0tsec/tree/master/plugins/logger)
+ - [markov : Help the bot learn and speak to it. It really tells random stuff. ](https://github.com/Depado/go-b0tsec/tree/master/plugins/markov)
+ - [seen : Check if someone is afk or the time since his/her last message.](https://github.com/Depado/go-b0tsec/tree/master/plugins/seen)
+ - [title : Grab the pages of the links that are being sent on the channel.](https://github.com/Depado/go-b0tsec/blob/master/plugins/title)
+ - [ud : Interrogate the Urban Dictionnary to improve your knowledge.](https://github.com/Depado/go-b0tsec/tree/master/plugins/urban)
+ - [youtube : Grab relevant information on the youtube videos that are sent on the channel.](https://github.com/Depado/go-b0tsec/tree/master/plugins/youtube)
+ - [github : Grab some information about repositories, pull requests, commits when someone sends a github link !](https://github.com/Depado/go-b0tsec/tree/master/plugins/github)
 
 ## Contributing
 
