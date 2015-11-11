@@ -10,7 +10,6 @@ before_install:
   - go get github.com/mattn/goveralls
 script:
   - go test -coverprofile=configuration.coverprofile ./configuration
-  - go test -coverprofile=contentmanager.coverprofile ./contentmanager
   - go test -coverprofile=plugins.coverprofile ./plugins
   - go test -coverprofile=utils.coverprofile ./utils
   - go test -coverprofile=main.coverprofile
