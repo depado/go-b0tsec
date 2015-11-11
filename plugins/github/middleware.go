@@ -91,7 +91,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 					ri := PullRequestInfo{}
 					err := utils.FetchURL(endpoint, &ri)
 					fmt.Println(ri)
-					if err == nil && len(ri.State) > 0{
+					if err == nil && len(ri.State) > 0 {
 						var status string
 						if ri.State == "open" {
 							if ri.Mergeable {
