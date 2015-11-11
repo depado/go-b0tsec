@@ -24,12 +24,14 @@ type RepoInfo struct {
 	Description string `json:"description"`
 }
 
+// IssueInfo represents the information relative to an issue.
 type IssueInfo struct {
 	Title  string `json:"title"`
 	State  string `json:"state"`
 	Number int    `json:"number"`
 }
 
+// CommitInfo represents the information about a single commit.
 type CommitInfo struct {
 	Commit struct {
 		Author struct {
