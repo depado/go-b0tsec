@@ -16,6 +16,8 @@ IRC bot written in Go with plugins and middlewares.
 
 ## Configuration
 
+**Note : This file is not stable. Please refer to the [conf.yml.example](https://github.com/Depado/go-b0tsec/blob/master/conf.yml.example) to get a more up-to-date version.**
+
 This bot is intended to be simple to configure and as such, will use a yaml configuration file. Some values are needed to use some plugins or middlewares.
 
 ```yaml

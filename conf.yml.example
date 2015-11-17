@@ -1,9 +1,21 @@
-bot_name:     AwesomeBot
-server:       irc.freenode.net:6667
-channel:      "#AwesomeChan"
-tls:          false
-insecure_tls: false
-youtube_key: "YouThoughtIWasGoingToVersionThatDidntYou?"
+# -------------------------
+# | General Configuration |
+# -------------------------
+bot_name:     AwesomeBot            # Name of your bot
+server:       irc.freenode.net:6667 # The server you want to contact
+channel:      "#AwesomeChan"        # Channel where the bot will live
+tls:          false                 # Activate or not TLS
+insecure_tls: false                 # Ignore errors when using TLS
+
+# ---------------------------
+# | Authentication and Keys |
+# ---------------------------
+google_api_key:   "YouThoughtIWasGoingToVersionThatDidntYou"
+yandex_trnsl_key: "SomeAPIKeyForYandexTranslationServiceIPresume"
+
+# ---------------------------
+# | Plugins and middlewares |
+# ---------------------------
 plugins:
     - ud
     - ddg
@@ -14,6 +26,9 @@ plugins:
     - dice
     - afk
     - seen
+    - choice
+    - translate
+    - define
 middlewares:
     - logger
     - github

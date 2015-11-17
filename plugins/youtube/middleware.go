@@ -13,7 +13,7 @@ import (
 	yt "google.golang.org/api/youtube/v3"
 )
 
-var ytre = regexp.MustCompile(`(?:https?://)?(?:www.)?youtube.com/watch\?.*v=([^&]*)`)
+var ytre = regexp.MustCompile(`(?:https?://)?(?:(?:www\.)?youtube\.com/watch\?.*v=|youtu\.be/)([^&?]{11})`)
 
 // Middleware is the github middleware
 type Middleware struct{}

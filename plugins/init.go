@@ -7,6 +7,7 @@ import (
 	"github.com/depado/go-b0tsec/plugins/afk"
 	"github.com/depado/go-b0tsec/plugins/anon"
 	"github.com/depado/go-b0tsec/plugins/choice"
+	"github.com/depado/go-b0tsec/plugins/define"
 	"github.com/depado/go-b0tsec/plugins/dice"
 	"github.com/depado/go-b0tsec/plugins/duckduckgo"
 	"github.com/depado/go-b0tsec/plugins/github"
@@ -73,6 +74,8 @@ func Init() {
 			RegisterCommand("choice", choice.NewPlugin())
 		case "translate":
 			RegisterCommand("translate", translate.NewPlugin())
+		case "define":
+			RegisterCommand("define", define.NewPlugin())
 		}
 	}
 	for _, m := range cnf.Middlewares {
