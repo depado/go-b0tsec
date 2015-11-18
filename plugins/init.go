@@ -76,6 +76,8 @@ func Init() {
 			RegisterCommand("translate", translate.NewPlugin())
 		case "define":
 			RegisterCommand("define", define.NewPlugin())
+		case "youtube":
+			RegisterCommand("yt", youtube.NewPlugin())
 		}
 	}
 	for _, m := range cnf.Middlewares {
