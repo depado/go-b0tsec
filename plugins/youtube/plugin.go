@@ -12,8 +12,6 @@ import (
 	yt "google.golang.org/api/youtube/v3"
 )
 
-type Plugin struct{}
-
 func (p Plugin) Help(ib *irc.Connection, from string) {
 	ib.Privmsg(from, "Search directly on YouTube.")
 	ib.Privmsg(from, "Example : !yt Funny cat")
@@ -45,15 +43,9 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 				return
 			}
 			for _, val := range videos.Items {
-				t := strings.Replace(val.ContentDetails.Duration[2:len(val.ContentDetails.Duration)-1], "M", ":", -1)
-				t = strings.Replace(t, "H", ":", -1)
-				if err != nil {
-					log.Println(err)
-				}
-				ib.Privmsgf(to, "\u0002%v\u000F : %v [\x0303%v\x03 | \x0304%v\x0F\x03] (%v)",
+				ib.Privmsgf(to, "\u0002%v\u000F : %s",
 					"https://youtu.be/"+i.Id.VideoId,
-					val.Snippet.Title, val.Statistics.LikeCount,
-					val.Statistics.DislikeCount, t)
+					FormatOutput(val))
 			}
 		}
 	}
