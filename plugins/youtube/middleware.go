@@ -15,9 +15,6 @@ import (
 
 var ytre = regexp.MustCompile(`(?:https?://)?(?:(?:www\.)?youtube\.com/watch\?.*v=|youtu\.be/)([^&?]{11})`)
 
-// Middleware is the github middleware
-type Middleware struct{}
-
 // Get actually sends the data
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
 	client := &http.Client{
@@ -37,15 +34,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 				return
 			}
 			for _, val := range response.Items {
-				t := strings.Replace(val.ContentDetails.Duration[2:len(val.ContentDetails.Duration)-1], "M", ":", -1)
-				t = strings.Replace(t, "H", ":", -1)
-				if err != nil {
-					log.Println(err)
-				}
-				ib.Privmsgf(to, "%v [\x0303%v\x03 | \x0304%v\x0F\x03] (%v) (%v)",
-					val.Snippet.Title, val.Statistics.LikeCount,
-					val.Statistics.DislikeCount, t,
-					"https://youtu.be/"+val.Id)
+				ib.Privmsgf(to, FormatOutput(val))
 			}
 		}
 	}
