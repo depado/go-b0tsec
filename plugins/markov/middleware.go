@@ -9,7 +9,7 @@ import (
 	"github.com/thoj/go-ircevent"
 )
 
-// Middleware is the actual mmarkov.Middleware
+// Middleware is the actual markov.Middleware
 type Middleware struct{}
 
 // Get actually operates on the message
@@ -41,7 +41,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 func NewMiddleware() *Middleware {
 	MainChain = NewChain("main")
 	if err := database.BotStorage.CreateBucket(bucketName); err != nil {
-		log.Fatalf("While initializing Karma plugin : %s", err)
+		log.Fatalf("While initializing Markov middleware : %s", err)
 	}
 	database.BotStorage.Get(bucketName, MainChain.Key, MainChain)
 	return new(Middleware)
