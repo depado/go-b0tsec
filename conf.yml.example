@@ -1,17 +1,23 @@
 # -------------------------
 # | General Configuration |
 # -------------------------
-bot_name:     AwesomeBot            # Name of your bot
-server:       irc.freenode.net:6667 # The server you want to contact
-channel:      "#AwesomeChan"        # Channel where the bot will live
-tls:          false                 # Activate or not TLS
-insecure_tls: false                 # Ignore errors when using TLS
+bot_name:          AwesomeBot            # Name of your bot
+server:            irc.freenode.net:6667 # The server you want to contact
+channel:           "#AwesomeChan"        # Channel where the bot will live
+tls:               false                 # Activate or not TLS
+insecure_tls:      false                 # Ignore errors when using TLS
+command_character: "!"                   # Set "!" as prefix command character
 
 # ---------------------------
 # | Authentication and Keys |
 # ---------------------------
 google_api_key:   "YouThoughtIWasGoingToVersionThatDidntYou"
 yandex_trnsl_key: "SomeAPIKeyForYandexTranslationServiceIPresume"
+
+# ------------------------------
+# | Plugins/middlewares config |
+# ------------------------------
+user_command_character: "." # Set "." as prefix usercommand character
 
 # ---------------------------
 # | Plugins and middlewares |
@@ -29,7 +35,8 @@ plugins:
     - choice
     - translate
     - define
-	- yt
+    - usercommand
+    - yt
 middlewares:
     - logger
     - github
@@ -38,3 +45,4 @@ middlewares:
     - seen
     - youtube
     - title
+    - usercommand

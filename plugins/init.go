@@ -18,6 +18,7 @@ import (
 	"github.com/depado/go-b0tsec/plugins/title"
 	"github.com/depado/go-b0tsec/plugins/translate"
 	"github.com/depado/go-b0tsec/plugins/urban"
+	"github.com/depado/go-b0tsec/plugins/usercommand"
 	"github.com/depado/go-b0tsec/plugins/youtube"
 	"github.com/thoj/go-ircevent"
 )
@@ -78,6 +79,8 @@ func Init() {
 			RegisterCommand("define", define.NewPlugin())
 		case "youtube":
 			RegisterCommand("yt", youtube.NewPlugin())
+		case "usercommand":
+			RegisterCommand("set", usercommand.NewPlugin())
 		}
 	}
 	for _, m := range cnf.Middlewares {
@@ -96,6 +99,8 @@ func Init() {
 			RegisterMiddleware(youtube.NewMiddleware())
 		case "title":
 			RegisterMiddleware(title.NewMiddleware())
+		case "usercommand":
+			RegisterMiddleware(usercommand.NewMiddleware())
 		}
 	}
 	RegisterCommand("help", new(Help))
