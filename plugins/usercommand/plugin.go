@@ -28,7 +28,7 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 		// Setting a command
 		c := Command{Name: args[0], Value: strings.Join(args[1:], " ")}
 		if err := c.Save(); err != nil {
-			log.Println("Could not save to Bolt :", err)
+			log.Println("Could not save to Bolt : ", err)
 			return
 		}
 		m := fmt.Sprintf("Command %s added", c.Name)
@@ -36,6 +36,13 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	}
 	if len(args) == 1 {
 		// Removes the command
+		c := Command{Name: args[0]}
+		if err := c.Delete(); err != nil {
+			log.Println("Could not delete Bolt data : ", err)
+			return
+		}
+		m := fmt.Sprintf("Command %s deleted", c.Name)
+		ib.Privmsg(to, m)
 	}
 }
 

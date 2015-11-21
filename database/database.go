@@ -59,6 +59,23 @@ func (s Storage) Save(bucket, key string, data Storable) error {
 	return err
 }
 
+// Deletes data inside the bucket at the specified key.
+func (s Storage) Delete(bucket, key string) error {
+	if !s.Opened {
+		return fmt.Errorf("db must be opened before using it")
+	}
+	err := s.DB.Update(func(tx *bolt.Tx) error {
+		mBucket := tx.Bucket([]byte(bucket))
+
+		if mBucket != nil {
+			err := mBucket.Delete([]byte(key))
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
 // Get retrieves the specific Storable object from bucket and key
 func (s Storage) Get(bucket, key string, to Storable) error {
 	if !s.Opened {

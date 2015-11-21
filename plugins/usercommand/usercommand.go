@@ -41,3 +41,7 @@ func (c *Command) Decode(data []byte) error {
 func (c Command) Save() error {
 	return database.BotStorage.Save(bucketName, c.Name, &c)
 }
+
+func (c Command) Delete() error {
+	return database.BotStorage.Delete(bucketName, c.Name)
+}
