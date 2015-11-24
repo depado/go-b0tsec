@@ -67,7 +67,7 @@ func main() {
 			c(ib, from, to, m)
 		}
 
-		if strings.HasPrefix(m, "!") {
+		if strings.HasPrefix(m, cnf.CommandCharacter) {
 			if len(m) > 1 {
 				splitted := strings.Fields(m[1:])
 				command := splitted[0]
