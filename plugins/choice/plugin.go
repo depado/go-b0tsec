@@ -20,7 +20,7 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	if to == configuration.Config.BotName {
 		to = from
 	}
-	if len(args) > 2 {
+	if len(args) > 1 {
 		c := rand.Intn(len(args))
 		if to == from {
 			ib.Privmsgf(to, "%v", args[c])
