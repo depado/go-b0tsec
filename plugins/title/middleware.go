@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -19,14 +20,21 @@ type Middleware struct{}
 
 // Get actually sends the data
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
-	if to == configuration.Config.BotName {
+	if to == cnf.Config.BotName {
 		to = from
 	}
 	for _, bit := range strings.Fields(message) {
 		rs := re.FindAllStringSubmatch(bit, -1)
 		if len(rs) > 0 {
-			tld := rs[0][1]
-			if tld != "youtube.com" && tld != "youtu.be" && tld != "github.com" {
+			host := rs[0][1]
+			m := cnf.Config.Middlewares
+			// If middlewares youtube or github are disabled, we still get the
+			// title of these sites.
+			if (m[sort.SearchStrings(m, "youtube")] != "youtube" ||
+				(m[sort.SearchStrings(m, "youtube")] == "youtube" &&
+					host != "youtube.com" && host != "youtu.be")) &&
+				m[sort.SearchStrings(m, "github")] != "github" ||
+				(m[sort.SearchStrings(m, "github")] == "github" && host != "github.com") {
 				resp, err := http.Get(rs[0][0])
 				if err != nil {
 					log.Println(err)

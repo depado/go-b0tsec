@@ -3,6 +3,7 @@ package configuration
 import (
 	"io/ioutil"
 	"log"
+	"sort"
 
 	"gopkg.in/yaml.v2"
 )
@@ -37,4 +38,6 @@ func Load(cp string) {
 	if err != nil {
 		log.Fatalf("Error parsing YAML :  %v", err)
 	}
+	sort.Strings(Config.Plugins)
+	sort.Strings(Config.Middlewares)
 }
