@@ -1,7 +1,6 @@
 package usercommand
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -13,13 +12,16 @@ type Plugin struct{}
 
 // Help displays the help for the plugin
 func (p Plugin) Help(ib *irc.Connection, from string) {
-	ib.Privmsg(from, "This command allows user to bind their own command to :")
-	ib.Privmsg(from, " - text printing")
-	//	ib.Privmsg(from, " - command alias")
-	ib.Privmsg(from, "Example : !set introduce Hi im go-b0tsec !")
-	ib.Privmsg(from, "          .introduce will call the bot to print the text above.")
-	//	ib.Privmsg(from, "Example : !set 421 !dice 3d6")
-	//	ib.Privmsg(from, "          .421 will be interpreted as if the command !dice 3d6 was called")
+	ib.Privmsg(from, "This command allows user to create, list and delete their own commands")
+	ib.Privmsg(from, "Example :")
+	ib.Privmsg(from, "!uc introduce Hi im go-b0tsec !")
+	ib.Privmsg(from, "    Command introduce added")
+	ib.Privmsg(from, ".introduce")
+	ib.Privmsg(from, "    Hi im go-b0tsec !")
+	ib.Privmsg(from, "!uc")
+	ib.Privmsg(from, "    introduce")
+	ib.Privmsg(from, "!uc introduce")
+	ib.Privmsg(from, "    Command introduce deleted")
 }
 
 // Get actually acts
@@ -31,8 +33,8 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 			log.Println("Could not save to Bolt : ", err)
 			return
 		}
-		m := fmt.Sprintf("Command %s added", c.Name)
-		ib.Privmsg(to, m)
+		ib.Privmsgf(to, "Command %s added", c.Name)
+		return
 	}
 	if len(args) == 1 {
 		// Removes the command
@@ -41,9 +43,19 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 			log.Println("Could not delete Bolt data : ", err)
 			return
 		}
-		m := fmt.Sprintf("Command %s deleted", c.Name)
-		ib.Privmsg(to, m)
+		ib.Privmsgf(to, "Command %s deleted", c.Name)
+		return
 	}
+	// List saved commands
+	l := make([]string, 0)
+	if err := List(&l); err != nil {
+		log.Println("Error during listing : ", err)
+	}
+	if len(l) < 1 {
+		ib.Privmsg(to, "No user command registered in db.")
+		return
+	}
+	ib.Privmsgf(to, "Registered commands : %s", strings.Join(l, " "))
 }
 
 // NewPlugin returns a new plugin

@@ -80,7 +80,7 @@ func Init() {
 		case "youtube":
 			RegisterCommand("yt", youtube.NewPlugin())
 		case "usercommand":
-			RegisterCommand("set", usercommand.NewPlugin())
+			RegisterCommand("uc", usercommand.NewPlugin())
 		}
 	}
 	for _, m := range cnf.Middlewares {

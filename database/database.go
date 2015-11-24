@@ -96,6 +96,30 @@ func (s Storage) Get(bucket, key string, to Storable) error {
 	return nil
 }
 
+// List keys
+func (s Storage) List(bucket string, to *[]string) error {
+	if !s.Opened {
+		return fmt.Errorf("Database must be opened first.")
+	}
+	err := s.DB.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		if b != nil {
+			err := b.ForEach(func(k, _ []byte) error {
+				*to = append(*to, fmt.Sprintf("%s", k))
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // CreateBucket creates a bucket if it doesn't exist.
 func (s Storage) CreateBucket(bucket string) error {
 	err := s.DB.Update(func(tx *bolt.Tx) error {

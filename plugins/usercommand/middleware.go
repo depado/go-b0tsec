@@ -16,19 +16,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	if strings.HasPrefix(message, cnf.UserCommandCharacter) {
 		c := Command{message[1:], ""}
 		database.BotStorage.Get(bucketName, c.Name, &c)
-
-		/*	if strings.HasPrefix(c.Value, "!") {
-			if len(c.Value) > 1 {
-				splitted := strings.Fields(c.Value[1:])
-				command := splitted[0]
-				args := splitted[1:]
-				if p, ok := plugins.Plugins[command]; ok {
-					p.Get(ib, from, to, args)
-				}
-			}
-		} else {*/
-		ib.Privmsgf(to, c.Value)
-		//}
+		ib.Privmsg(to, c.Value)
 	}
 }
 

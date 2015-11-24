@@ -42,6 +42,12 @@ func (c Command) Save() error {
 	return database.BotStorage.Save(bucketName, c.Name, &c)
 }
 
+// Deletes a command
 func (c Command) Delete() error {
 	return database.BotStorage.Delete(bucketName, c.Name)
+}
+
+// Returns a string array of all the keys in the bucket
+func List(list *[]string) error {
+	return database.BotStorage.List(bucketName, list)
 }
