@@ -44,7 +44,11 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 			log.Println(err)
 			return
 		}
-		ib.Privmsgf(to, "%v: \x0314[%v]\x0F\x03 %v", from, yr.Lang, yr.Text[0])
+		if len(yr.Text) > 0 {
+			ib.Privmsgf(to, "%v: \x0314[%v]\x0F\x03 %v", from, yr.Lang, yr.Text[0])
+		} else {
+			ib.Privmsgf(to, "%v: \x0314Unrecognised language.\x0F\x03", from, yr.Lang)
+		}
 	}
 }
 

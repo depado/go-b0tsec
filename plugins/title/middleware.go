@@ -4,12 +4,13 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"sort"
 	"strings"
 
 	"golang.org/x/net/html"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/utils"
+
 	"github.com/thoj/go-ircevent"
 )
 
@@ -20,21 +21,19 @@ type Middleware struct{}
 
 // Get actually sends the data
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
-	if to == cnf.Config.BotName {
+	cnf := configuration.Config
+	if to == cnf.BotName {
 		to = from
 	}
 	for _, bit := range strings.Fields(message) {
 		rs := re.FindAllStringSubmatch(bit, -1)
 		if len(rs) > 0 {
 			host := rs[0][1]
-			m := cnf.Config.Middlewares
+			m := cnf.Middlewares
 			// If middlewares youtube or github are disabled, we still get the
 			// title of these sites.
-			if (m[sort.SearchStrings(m, "youtube")] != "youtube" ||
-				(m[sort.SearchStrings(m, "youtube")] == "youtube" &&
-					host != "youtube.com" && host != "youtu.be")) &&
-				m[sort.SearchStrings(m, "github")] != "github" ||
-				(m[sort.SearchStrings(m, "github")] == "github" && host != "github.com") {
+			if (host == "youtube.be" || host == "youtube") && !utils.StringInSlice("youtube", m) ||
+				host == "github.com" && !utils.StringInSlice("github", m) {
 				resp, err := http.Get(rs[0][0])
 				if err != nil {
 					log.Println(err)
