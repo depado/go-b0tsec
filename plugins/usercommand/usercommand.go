@@ -9,11 +9,13 @@ import (
 
 const bucketName = "usercommand"
 
+// Command represents a single command.
 type Command struct {
 	Name  string
 	Value string
 }
 
+// CreateBucket creates the bucket for usercommands.
 func CreateBucket() {
 	if err := database.BotStorage.CreateBucket(bucketName); err != nil {
 		log.Fatalf("While initializing UserCommand plugin : %s", err)
@@ -42,12 +44,12 @@ func (c Command) Save() error {
 	return database.BotStorage.Save(bucketName, c.Name, &c)
 }
 
-// Deletes a command
+// Delete deletes a command
 func (c Command) Delete() error {
 	return database.BotStorage.Delete(bucketName, c.Name)
 }
 
-// Returns a string array of all the keys in the bucket
+// List returns a string array of all the keys in the bucket
 func List(list *[]string) error {
 	return database.BotStorage.List(bucketName, list)
 }

@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/nado/go-b0tsec/configuration"
 	"github.com/thoj/go-ircevent"
 )
 
@@ -15,17 +16,20 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 	ib.Privmsg(from, "This command allows user to create, list and delete their own commands")
 	ib.Privmsg(from, "Example :")
 	ib.Privmsg(from, "!uc introduce Hi im go-b0tsec !")
-	ib.Privmsg(from, "    Command introduce added")
+	ib.Privmsg(from, "> Command introduce added")
 	ib.Privmsg(from, ".introduce")
-	ib.Privmsg(from, "    Hi im go-b0tsec !")
+	ib.Privmsg(from, "> Hi im go-b0tsec !")
 	ib.Privmsg(from, "!uc")
-	ib.Privmsg(from, "    introduce")
+	ib.Privmsg(from, "> introduce")
 	ib.Privmsg(from, "!uc introduce")
-	ib.Privmsg(from, "    Command introduce deleted")
+	ib.Privmsg(from, "> Command introduce deleted")
 }
 
 // Get actually acts
 func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if to == configuration.Config.BotName {
+		to = from
+	}
 	if len(args) > 1 {
 		// Setting a command
 		c := Command{Name: args[0], Value: strings.Join(args[1:], " ")}
@@ -47,12 +51,12 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 		return
 	}
 	// List saved commands
-	l := make([]string, 0)
+	var l []string
 	if err := List(&l); err != nil {
 		log.Println("Error during listing : ", err)
 	}
 	if len(l) < 1 {
-		ib.Privmsg(to, "No user command registered in db.")
+		ib.Privmsg(to, "No user command registered.")
 		return
 	}
 	ib.Privmsgf(to, "Registered commands : %s", strings.Join(l, " "))

@@ -12,11 +12,13 @@ import (
 	yt "google.golang.org/api/youtube/v3"
 )
 
+// Help shows a help message for this command.
 func (p Plugin) Help(ib *irc.Connection, from string) {
 	ib.Privmsg(from, "Search directly on YouTube.")
 	ib.Privmsg(from, "Example : !yt Funny cat")
 }
 
+// Get actually sends the data
 func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	if len(args) > 0 {
 		client := &http.Client{

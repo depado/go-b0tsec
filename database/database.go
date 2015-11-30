@@ -59,7 +59,7 @@ func (s Storage) Save(bucket, key string, data Storable) error {
 	return err
 }
 
-// Deletes data inside the bucket at the specified key.
+// Delete deletes data inside the bucket at the specified key.
 func (s Storage) Delete(bucket, key string) error {
 	if !s.Opened {
 		return fmt.Errorf("db must be opened before using it")

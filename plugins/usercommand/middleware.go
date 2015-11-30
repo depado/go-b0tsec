@@ -8,6 +8,7 @@ import (
 	"github.com/thoj/go-ircevent"
 )
 
+// Middleware is the actual middleware.
 type Middleware struct{}
 
 // Get actually operates on the message
