@@ -109,15 +109,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 						return
 					}
 				}
-
-				var size string
-				if len(data)/1024 > 1024 {
-					size = fmt.Sprintf("%.2fMB", (float32(len(data)) / 1024.0 / 1024.0))
-				} else {
-					size = fmt.Sprintf("%.2fKB", (float32(len(data)) / 1024.0))
-				}
-
-				ib.Privmsgf(to, "File : (%s) %v", size, mimetype)
+				ib.Privmsgf(to, "File : (%s) %v", utils.HumanReadableSize(len(data)), mimetype)
 			}
 		}
 	}

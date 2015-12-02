@@ -36,6 +36,7 @@ func main() {
 	if err = database.BotStorage.Open(); err != nil {
 		log.Fatalf("Something went wrong with the databse : %v", err)
 	}
+	defer database.BotStorage.Close()
 
 	// Plugins initialization
 	plugins.Init()

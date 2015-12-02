@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/nado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/configuration"
 	"github.com/thoj/go-ircevent"
 )
 
