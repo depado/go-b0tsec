@@ -24,6 +24,35 @@ var re = regexp.MustCompile(`(?:https?://)(?:www.)?([^/]*).*`)
 // Middleware is the github middleware
 type Middleware struct{}
 
+// Get the title token of a HTML page
+func GetTitle(resp *http.Response, url string) string {
+	fURL := resp.Request.URL.String()
+	z := html.NewTokenizer(resp.Body)
+	for {
+		tt := z.Next()
+		switch tt {
+		case html.ErrorToken:
+			return ""
+		case html.StartTagToken:
+			t := z.Token()
+			if t.Data == "title" {
+				tt = z.Next()
+				t = z.Token()
+				d := t.Data
+				if len(d) > 450 {
+					d = d[:450]
+				}
+				if fURL != url {
+					return fmt.Sprintf("%v (%v)", d, fURL)
+				} else {
+					return d
+				}
+				return ""
+			}
+		}
+	}
+}
+
 // Get actually sends the data
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
 	cnf := configuration.Config
@@ -70,36 +99,17 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 				mimetype, err := magicmime.TypeByBuffer(data)
 				if err != nil {
 					log.Println(err)
+					return
 				}
 
 				if strings.HasPrefix(mimetype, "HTML document") {
 					resp.Body = ioutil.NopCloser(bytes.NewBuffer(data))
-					fURL := resp.Request.URL.String()
-					z := html.NewTokenizer(resp.Body)
-					for {
-						tt := z.Next()
-						switch tt {
-						case html.ErrorToken:
-							return
-						case html.StartTagToken:
-							t := z.Token()
-							if t.Data == "title" {
-								tt = z.Next()
-								t = z.Token()
-								d := t.Data
-								if len(d) > 450 {
-									d = d[:450]
-								}
-								if fURL != rs[0][0] {
-									ib.Privmsgf(to, "%v (%v)", d, fURL)
-								} else {
-									ib.Privmsg(to, d)
-								}
-								return
-							}
-						}
+					if r := GetTitle(resp, rs[0][0]); r != "" {
+						ib.Privmsg(to, r)
+						return
 					}
 				}
+
 				var size string
 				if len(data)/1024 > 1024 {
 					size = fmt.Sprintf("%.2fMB", (float32(len(data)) / 1024.0 / 1024.0))
