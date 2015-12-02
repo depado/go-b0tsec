@@ -1,17 +1,27 @@
+sudo: false
 language: go
 
 go:
   - 1.5
 
+go_import_path: github.com/depado/go-b0tsec
+
+cache: apt
+
+addons:
+    apt:
+        packages:
+        - libmagic-dev
+
 before_install:
   - go get golang.org/x/tools/cmd/cover
-  - go get github.com/axw/gocov/gocov
+  - go get github.com/axw/gocov
   - go get github.com/modocache/gover
   - go get github.com/mattn/goveralls
+  - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
+
 script:
-  - go test -coverprofile=configuration.coverprofile ./configuration
-  - go test -coverprofile=plugins.coverprofile ./plugins
-  - go test -coverprofile=utils.coverprofile ./utils
-  - go test -coverprofile=main.coverprofile
-  - $HOME/gopath/bin/gover
-  - $HOME/gopath/bin/goveralls -coverprofile=gover.coverprofile -service travis-ci
+  - go test -i ./...
+  - go test ./...
+  - $GOPATH/bin/gover
+  - $GOPATH/bin/goveralls -coverprofile=gover.coverprofile -service=travis-ci

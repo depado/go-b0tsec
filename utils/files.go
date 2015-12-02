@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
@@ -14,4 +15,18 @@ func CheckAndCreateFolder(folderPath string) error {
 		return err
 	}
 	return nil
+}
+
+// HumanReadableSize returns a string with the proper size prefix and with a floating precision of 2
+func HumanReadableSize(size int) string {
+	if size > 1024*1024*1024 {
+		return fmt.Sprintf("%.2fGB", (float32(size) / 1024.0 / 1024.0 / 1024.0))
+	}
+	if size > 1024*1024 {
+		return fmt.Sprintf("%.2fMB", (float32(size) / 1024.0 / 1024.0))
+	}
+	if size > 1024 {
+		return fmt.Sprintf("%.2fKB", (float32(size) / 1024.0))
+	}
+	return fmt.Sprintf("%dB", size)
 }
