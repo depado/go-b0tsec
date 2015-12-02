@@ -74,59 +74,58 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	if len(args) > 0 {
 		switch args[0] {
 		case "<", ">":
-			if len(args) > 1 {
-				if from != args[1] {
-					if val, ok := p.Action[from]; ok {
-						if time.Since(val) < 1*time.Minute {
-							ib.Notice(from, "Please wait 1 minute between each karma operation.")
-							return
-						}
-					}
-					p.Action[from] = time.Now()
-					c := 0
-					if val, ok := p.Karma[args[1]]; ok {
-						c = val
-					}
-					if args[0] == ">" {
-						p.Karma[args[1]] = c + 1
-						ib.Privmsgf(configuration.Config.Channel, "Someone gave a karma point to %v, total %v", args[1], c+1)
-					} else {
-						p.Karma[args[1]] = c - 1
-						ib.Privmsgf(configuration.Config.Channel, "Someone took a karma point from %v, total %v", args[1], c-1)
-					}
-					if err := p.Data.Save(); err != nil {
-						log.Println(err)
-					}
-					if len(args) > 2 {
-						ib.Privmsgf(configuration.Config.Channel, "Reason : %s", strings.Join(args[2:], " "))
-					}
-				} else {
-					ib.Notice(from, "Can't add or remove points to yourself.")
+			if len(args) < 2 {
+				ib.Notice(from, "You need to give a nickname to operate on.")
+				return
+			}
+			if from == args[1] {
+				ib.Notice(from, "Can't add or remove points to yourself.")
+				return
+			}
+			if val, ok := p.Action[from]; ok {
+				if time.Since(val) < 1*time.Minute {
+					ib.Notice(from, "Please wait 1 minute between each karma operation.")
 					return
 				}
+			}
+			p.Action[from] = time.Now()
+			c := 0
+			if val, ok := p.Karma[args[1]]; ok {
+				c = val
+			}
+			if args[0] == ">" {
+				p.Karma[args[1]] = c + 1
+				ib.Privmsgf(configuration.Config.Channel, "Someone gave a karma point to %v, total %v", args[1], c+1)
 			} else {
-				ib.Notice(from, "You need to give a nickname to operate on.")
+				p.Karma[args[1]] = c - 1
+				ib.Privmsgf(configuration.Config.Channel, "Someone took a karma point from %v, total %v", args[1], c-1)
+			}
+			if len(args) > 2 {
+				ib.Privmsgf(configuration.Config.Channel, "Reason : %s", strings.Join(args[2:], " "))
+			}
+			if err := p.Data.Save(); err != nil {
+				log.Println(err)
 			}
 		case "=":
-			if len(args) > 1 {
-				nrec := false
-				pl := make(PairList, 0)
-				for _, n := range args[1:] {
-					if val, ok := p.Karma[n]; ok {
-						pl = append(pl, Pair{n, val})
-					} else {
-						nrec = true
-					}
+			if len(args) < 2 {
+				ib.Notice(from, "You need to give a nickname to operate on.")
+				return
+			}
+			nrec := false
+			pl := make(PairList, 0)
+			for _, n := range args[1:] {
+				if val, ok := p.Karma[n]; ok {
+					pl = append(pl, Pair{n, val})
+				} else {
+					nrec = true
 				}
-				sort.Sort(sort.Reverse(pl))
-				for _, v := range pl {
-					ib.Privmsgf(to, "%v has %v point(s)", v.Key, v.Value)
-				}
-				if nrec {
-					ib.Privmsg(to, "No record for the others.")
-				}
-			} else {
-				ib.Notice(from, "Need at least a nickname.")
+			}
+			sort.Sort(sort.Reverse(pl))
+			for _, v := range pl {
+				ib.Privmsgf(to, "%v has %v point(s)", v.Key, v.Value)
+			}
+			if nrec {
+				ib.Privmsg(to, "No record for the others.")
 			}
 		}
 	}
