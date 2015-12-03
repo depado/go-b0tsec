@@ -24,7 +24,7 @@ var re = regexp.MustCompile(`(?:https?://)(?:www.)?([^/]*).*`)
 // Middleware is the github middleware
 type Middleware struct{}
 
-// Get the title token of a HTML page
+// GetTitle gets the title token of a HTML page
 func GetTitle(resp *http.Response, url string) string {
 	fURL := resp.Request.URL.String()
 	z := html.NewTokenizer(resp.Body)
@@ -44,13 +44,37 @@ func GetTitle(resp *http.Response, url string) string {
 				}
 				if fURL != url {
 					return fmt.Sprintf("%v (%v)", d, fURL)
-				} else {
-					return d
 				}
-				return ""
+				return d
 			}
 		}
 	}
+}
+
+// GetMimetype gets the mimetype of a data []byte
+func GetMimetype(data []byte) (string, error) {
+	if err := magicmime.Open(magicmime.MAGIC_NO_CHECK_COMPRESS); err != nil {
+		return "", err
+	}
+	defer magicmime.Close()
+
+	mimetype, err := magicmime.TypeByBuffer(data)
+	if err != nil {
+		return "", err
+	}
+	return mimetype, nil
+}
+
+// IsURLToTreat checks whether the host is already managed by another plugin or not
+func IsURLToTreat(host string) bool {
+	m := configuration.Config.Middlewares
+	// If middlewares youtube or github are disabled, we still get the
+	// title of these sites.
+	if (host != "youtu.be" && host != "youtube.com" || !utils.StringInSlice("youtube", m)) &&
+		(host != "github.com" || !utils.StringInSlice("github", m)) {
+		return true
+	}
+	return false
 }
 
 // Get actually sends the data
@@ -62,13 +86,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	for _, bit := range strings.Fields(message) {
 		rs := re.FindAllStringSubmatch(bit, -1)
 		if len(rs) > 0 {
-			host := rs[0][1]
-			m := cnf.Middlewares
-			// If middlewares youtube or github are disabled, we still get the
-			// title of these sites.
-			if (host != "youtu.be" && host != "youtube.com" || !utils.StringInSlice("youtube", m)) &&
-				(host != "github.com" || !utils.StringInSlice("github", m)) {
-
+			if IsURLToTreat(rs[0][1]) {
 				// Avoid KeepAlives slowing down a simple GET, also we dont care
 				// about unsafe TLS
 				tr := &http.Transport{
@@ -84,19 +102,13 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 				}
 				defer resp.Body.Close()
 
-				if err := magicmime.Open(magicmime.MAGIC_NO_CHECK_COMPRESS); err != nil {
-					log.Println(err)
-					return
-				}
-				defer magicmime.Close()
-
 				data, err := ioutil.ReadAll(resp.Body)
 				if err != nil {
 					log.Println(err)
 					return
 				}
 
-				mimetype, err := magicmime.TypeByBuffer(data)
+				mimetype, err := GetMimetype(data)
 				if err != nil {
 					log.Println(err)
 					return
