@@ -13,8 +13,8 @@ type ret struct {
 
 func TestIndexStringInSlice(t *testing.T) {
 	payload := map[string]ret{
-		"quick": ret{1, true},
-		"brawn": ret{-1, false},
+		"quick": {1, true},
+		"brawn": {-1, false},
 	}
 	for key, val := range payload {
 		i, f := IndexStringInSlice(key, teststr)
