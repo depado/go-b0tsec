@@ -10,7 +10,9 @@ import (
 func CheckAndCreateFolder(folderPath string) error {
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 		log.Printf("Could not find %v folder. Creating it.\n", folderPath)
-		os.Mkdir(folderPath, 0777)
+		if err := os.Mkdir(folderPath, 0777); err != nil {
+			return err
+		}
 	} else if err != nil {
 		return err
 	}
