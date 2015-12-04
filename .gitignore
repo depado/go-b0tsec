@@ -6,3 +6,4 @@ logs
 data.db
 ansible
 conf.yml
+*.coverprofile
