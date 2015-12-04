@@ -19,11 +19,10 @@ func (s *Storage) Open() error {
 	dbfile := "data.db"
 	config := &bolt.Options{Timeout: 1 * time.Second}
 	s.DB, err = bolt.Open(dbfile, 0600, config)
-	if err != nil {
-		return err
+	if err == nil {
+		s.Opened = true
 	}
-	s.Opened = true
-	return nil
+	return err
 }
 
 // Close closes the connection (or at least attempts to)
@@ -82,18 +81,12 @@ func (s Storage) Get(bucket, key string, to Storable) error {
 		return fmt.Errorf("Database must be opened first.")
 	}
 	err := s.DB.View(func(tx *bolt.Tx) error {
-		var err error
 		b := tx.Bucket([]byte(bucket))
 		k := []byte(key)
-		if err = to.Decode(b.Get(k)); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
+		err := to.Decode(b.Get(k))
 		return err
-	}
-	return nil
+	})
+	return err
 }
 
 // List keys
@@ -108,26 +101,24 @@ func (s Storage) List(bucket string, to *[]string) error {
 				*to = append(*to, fmt.Sprintf("%s", k))
 				return nil
 			})
-			if err != nil {
-				return err
-			}
+			return err
 		}
 		return nil
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // CreateBucket creates a bucket if it doesn't exist.
 func (s Storage) CreateBucket(bucket string) error {
+	if !s.Opened {
+		return fmt.Errorf("db must be opened before creating bucket")
+	}
 	err := s.DB.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(bucket))
 		if err != nil {
 			return fmt.Errorf("Error creating bucket : %s", err)
 		}
-		return err
+		return nil
 	})
 	return err
 }
