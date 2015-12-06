@@ -5,8 +5,21 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
+
+const (
+	pluginCommand = "uc"
+)
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		CreateBucket()
+		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+	}
+}
 
 // Plugin is the usercommand.Plugin type
 type Plugin struct{}
@@ -64,6 +77,5 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 
 // NewPlugin returns a new plugin
 func NewPlugin() *Plugin {
-	CreateBucket()
 	return new(Plugin)
 }

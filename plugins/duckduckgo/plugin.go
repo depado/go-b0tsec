@@ -5,11 +5,15 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
-const apiURL = "http://api.duckduckgo.com/?q=%s&format=json"
+const (
+	apiURL        = "http://api.duckduckgo.com/?q=%s&format=json"
+	pluginCommand = "ddg"
+)
 
 type message struct {
 	Definition       string
@@ -42,6 +46,12 @@ type relatedTopic struct {
 
 // Plugin is the duckduckgo plugin.
 type Plugin struct{}
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+	}
+}
 
 // Help provides some help on the plugin
 func (p Plugin) Help(ib *irc.Connection, from string) {

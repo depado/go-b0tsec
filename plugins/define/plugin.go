@@ -7,11 +7,16 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
-var dictionnaryEndpoint string
+const (
+	pluginCommand = "define"
+)
+
+var dictionnaryEndpoint = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=" + configuration.Config.YandexDictKey + "&lang=%s&text=%s"
 
 // YandexDict struct holds the response of a call to the Yandex dictionnary API.
 type YandexDict struct {
@@ -41,6 +46,12 @@ type YandexDict struct {
 
 // Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
 type Plugin struct{}
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+	}
+}
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
 func (p Plugin) Help(ib *irc.Connection, from string) {
@@ -78,6 +89,5 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 
 // NewPlugin returns a new plugin
 func NewPlugin() *Plugin {
-	dictionnaryEndpoint = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=" + configuration.Config.YandexDictKey + "&lang=%s&text=%s"
 	return new(Plugin)
 }

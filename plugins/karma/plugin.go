@@ -10,11 +10,16 @@ import (
 
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/database"
+	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
-const bucketName = "karma"
-const mainKey = "main"
+const (
+	pluginCommand = "karma"
+	bucketName    = "karma"
+	mainKey       = "main"
+)
 
 // Data is the struct that contains the data about the karma intented to be stored somewhere.
 type Data struct {
@@ -29,6 +34,18 @@ type Pair struct {
 
 // PairList is a list of Pair
 type PairList []Pair
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		d := Data{make(map[string]int)}
+		if err := database.BotStorage.CreateBucket(bucketName); err != nil {
+			log.Fatalf("While initializing Karma plugin : %s", err)
+		}
+		database.BotStorage.Get(bucketName, mainKey, &d)
+		pluginsinit.Plugins[pluginCommand] = &Plugin{d, make(map[string]time.Time)}
+
+	}
+}
 
 func (p PairList) Len() int           { return len(p) }
 func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }

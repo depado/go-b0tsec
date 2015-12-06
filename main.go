@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"flag"
 	"log"
 	"strings"
 
@@ -11,18 +10,13 @@ import (
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/database"
 	"github.com/depado/go-b0tsec/plugins"
+	"github.com/depado/go-b0tsec/pluginsinit"
 	"github.com/depado/go-b0tsec/utils"
 )
 
 func main() {
 	var err error
 
-	// Argument parsing
-	confPath := flag.String("c", "conf.yml", "Local path to configuration file.")
-	flag.Parse()
-
-	// Load the configuration of the bot
-	configuration.Load(*confPath)
 	cnf := configuration.Config
 
 	// Loggers initialization
@@ -32,14 +26,8 @@ func main() {
 	defer utils.HistoryFile.Close()
 	defer utils.LinkFile.Close()
 
-	// Storage initialization
-	if err = database.BotStorage.Open(); err != nil {
-		log.Fatalf("Something went wrong with the databse : %v", err)
-	}
+	// Defer all Close() methods
 	defer database.BotStorage.Close()
-
-	// Plugins initialization
-	plugins.Init()
 
 	// Bot initialization
 	ib := irc.IRC(cnf.BotName, cnf.BotName)
@@ -73,7 +61,7 @@ func main() {
 				splitted := strings.Fields(m[1:])
 				command := splitted[0]
 				args := splitted[1:]
-				if p, ok := plugins.Plugins[command]; ok {
+				if p, ok := pluginsinit.Plugins[command]; ok {
 					p.Get(ib, from, to, args)
 				}
 			}

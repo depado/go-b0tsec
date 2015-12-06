@@ -4,8 +4,20 @@ import (
 	"math/rand"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
+
+const (
+	pluginCommand = "choice"
+)
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+	}
+}
 
 // Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
 type Plugin struct{}

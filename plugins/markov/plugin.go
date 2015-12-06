@@ -1,9 +1,24 @@
 package markov
 
-import "github.com/thoj/go-ircevent"
+import (
+	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/utils"
+	"github.com/thoj/go-ircevent"
+)
+
+const (
+	pluginCommand = "markov"
+)
 
 // Plugin is the markov.Plugin type
 type Plugin struct{}
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+	}
+}
 
 // Help displays the help for the plugin
 func (p Plugin) Help(ib *irc.Connection, from string) {
@@ -15,7 +30,7 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 // Get actually acts
 func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	if len(args) > 0 {
-		if i, ok := stringInSlice(">", args); ok && len(args) > i+1 {
+		if i, ok := utils.IndexStringInSlice(">", args); ok && len(args) > i+1 {
 			ib.Privmsgf(to, "%v: %v", args[i+1], MainChain.Generate())
 		}
 		return
@@ -26,13 +41,4 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 // NewPlugin returns a new plugin
 func NewPlugin() *Plugin {
 	return new(Plugin)
-}
-
-func stringInSlice(a string, list []string) (int, bool) {
-	for i, b := range list {
-		if b == a {
-			return i, true
-		}
-	}
-	return -1, false
 }

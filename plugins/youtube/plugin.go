@@ -6,11 +6,23 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 
 	"google.golang.org/api/googleapi/transport"
 	yt "google.golang.org/api/youtube/v3"
 )
+
+const (
+	pluginCommand = "yt"
+)
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+	}
+}
 
 // Help shows a help message for this command.
 func (p Plugin) Help(ib *irc.Connection, from string) {

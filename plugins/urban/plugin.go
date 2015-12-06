@@ -5,11 +5,15 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
-const apiURL = "http://api.urbandictionary.com/v0/define?term=%s"
+const (
+	pluginCommand = "ud"
+	apiURL        = "http://api.urbandictionary.com/v0/define?term=%s"
+)
 
 type message struct {
 	Tags       []string   `json:"tags"`
@@ -35,6 +39,12 @@ type Plugin struct {
 	Last          message
 	CurrentResult udResult
 	Current       int
+}
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+	}
 }
 
 // Help must send the help about this plugin.

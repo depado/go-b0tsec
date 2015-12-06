@@ -4,11 +4,23 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
+)
+
+const (
+	pluginCommand = "anon"
 )
 
 // Plugin is the anon plugin. Exposed as anon.Plugin.
 type Plugin struct{}
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+	}
+}
 
 // Help provides some help on the usage of the plugin.
 func (p Plugin) Help(ib *irc.Connection, from string) {
