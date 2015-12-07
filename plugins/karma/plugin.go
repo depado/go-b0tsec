@@ -10,7 +10,7 @@ import (
 
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/database"
-	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
@@ -42,7 +42,7 @@ func init() {
 			log.Fatalf("While initializing Karma plugin : %s", err)
 		}
 		database.BotStorage.Get(bucketName, mainKey, &d)
-		pluginsinit.Plugins[pluginCommand] = &Plugin{d, make(map[string]time.Time)}
+		plugins.Plugins[pluginCommand] = &Plugin{d, make(map[string]time.Time)}
 
 	}
 }

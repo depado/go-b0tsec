@@ -5,13 +5,13 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
 const (
-	apiURL        = "http://api.duckduckgo.com/?q=%s&format=json"
+	apiURL        = "https://api.duckduckgo.com/?q=%s&format=json"
 	pluginCommand = "ddg"
 )
 
@@ -49,7 +49,7 @@ type Plugin struct{}
 
 func init() {
 	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
-		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+		plugins.Plugins[pluginCommand] = new(Plugin)
 	}
 }
 
@@ -69,7 +69,7 @@ func (p Plugin) Get(ircbot *irc.Connection, from string, to string, args []strin
 			}
 			return
 		}
-		ircbot.Privmsg(configuration.Config.Channel, res)
+		ircbot.Privmsg(to, res)
 	}
 }
 

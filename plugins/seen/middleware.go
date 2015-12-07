@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
@@ -17,7 +17,7 @@ const (
 type Middleware struct{}
 
 func init() {
-	m := pluginsinit.Middlewares
+	m := plugins.Middlewares
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
 		m = append(m, new(Middleware).Get)
 	}

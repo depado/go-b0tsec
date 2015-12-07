@@ -4,7 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
@@ -15,7 +15,7 @@ const (
 
 func init() {
 	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
-		pluginsinit.Plugins[pluginCommand] = new(Plugin)
+		plugins.Plugins[pluginCommand] = new(Plugin)
 	}
 }
 

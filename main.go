@@ -9,7 +9,8 @@ import (
 
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/database"
-	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/plugins"
+	_ "github.com/depado/go-b0tsec/pluginsinit"
 	"github.com/depado/go-b0tsec/utils"
 )
 
@@ -51,7 +52,7 @@ func main() {
 		to := e.Arguments[0]
 		m := e.Message()
 
-		for _, c := range pluginsinit.Middlewares {
+		for _, c := range plugins.Middlewares {
 			c(ib, from, to, m)
 		}
 
@@ -60,7 +61,7 @@ func main() {
 				splitted := strings.Fields(m[1:])
 				command := splitted[0]
 				args := splitted[1:]
-				if p, ok := pluginsinit.Plugins[command]; ok {
+				if p, ok := plugins.Plugins[command]; ok {
 					p.Get(ib, from, to, args)
 				}
 			}

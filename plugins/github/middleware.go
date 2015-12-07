@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
@@ -19,7 +19,7 @@ const (
 var re = regexp.MustCompile("https?://github.com/([^/]+)/([^/]+)(/(issues/[0-9]+|commit/[[:xdigit:]]{40}|pull/[0-9]+))?")
 
 func init() {
-	m := pluginsinit.Middlewares
+	m := plugins.Middlewares
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
 		m = append(m, new(Middleware).Get)
 	}
