@@ -9,7 +9,6 @@ import (
 
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/database"
-	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/pluginsinit"
 	"github.com/depado/go-b0tsec/utils"
 )
@@ -52,7 +51,7 @@ func main() {
 		to := e.Arguments[0]
 		m := e.Message()
 
-		for _, c := range plugins.Middlewares {
+		for _, c := range pluginsinit.Middlewares {
 			c(ib, from, to, m)
 		}
 

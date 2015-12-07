@@ -7,13 +7,26 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 
 	"google.golang.org/api/googleapi/transport"
 	yt "google.golang.org/api/youtube/v3"
 )
 
+const (
+	middlewareName = "youtube"
+)
+
 var ytre = regexp.MustCompile(`(?:https?://)?(?:(?:www\.)?youtube\.com/watch\?.*v=|youtu\.be/)([^&?]{11})`)
+
+func init() {
+	m := pluginsinit.Middlewares
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		m = append(m, new(Middleware).Get)
+	}
+}
 
 // Get actually sends the data
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {

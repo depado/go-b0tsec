@@ -13,16 +13,28 @@ import (
 	"golang.org/x/net/html"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
 	"github.com/depado/go-b0tsec/utils"
 
 	"github.com/rakyll/magicmime"
 	"github.com/thoj/go-ircevent"
 )
 
+const (
+	middlewareName = "title"
+)
+
 var re = regexp.MustCompile(`(?:https?://)(?:www.)?([^/]*).*`)
 
 // Middleware is the github middleware
 type Middleware struct{}
+
+func init() {
+	m := pluginsinit.Middlewares
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		m = append(m, new(Middleware).Get)
+	}
+}
 
 // GetTitle gets the title token of a HTML page
 func GetTitle(resp *http.Response, url string) string {

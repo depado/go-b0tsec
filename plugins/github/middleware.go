@@ -6,13 +6,24 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/pluginsinit"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
-const apiURL = "https://api.github.com/repos/%s/%s%s"
+const (
+	middlewareName = "github"
+	apiURL         = "https://api.github.com/repos/%s/%s%s"
+)
 
 var re = regexp.MustCompile("https?://github.com/([^/]+)/([^/]+)(/(issues/[0-9]+|commit/[[:xdigit:]]{40}|pull/[0-9]+))?")
+
+func init() {
+	m := pluginsinit.Middlewares
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		m = append(m, new(Middleware).Get)
+	}
+}
 
 // Get actually sends the data
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {

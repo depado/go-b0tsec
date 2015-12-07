@@ -5,11 +5,26 @@ import (
 
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/database"
+	"github.com/depado/go-b0tsec/pluginsinit"
+	"github.com/depado/go-b0tsec/utils"
+
 	"github.com/thoj/go-ircevent"
+)
+
+const (
+	middlewareName = "usercommand"
 )
 
 // Middleware is the actual middleware.
 type Middleware struct{}
+
+func init() {
+	m := pluginsinit.Middlewares
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		CreateBucket()
+		m = append(m, new(Middleware).Get)
+	}
+}
 
 // Get actually operates on the message
 func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
