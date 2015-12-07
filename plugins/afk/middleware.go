@@ -4,6 +4,7 @@ import (
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
+
 	"github.com/thoj/go-ircevent"
 )
 
@@ -11,13 +12,13 @@ const (
 	middlewareName = "afk"
 )
 
-// Middleware is the github middleware
+// Middleware is the afk middleware
 type Middleware struct{}
 
 func init() {
 	m := plugins.Middlewares
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
-		m = append(m, new(Middleware).Get)
+		plugins.Middlewares = append(m, new(Middleware).Get)
 	}
 }
 

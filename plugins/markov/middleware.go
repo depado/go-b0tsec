@@ -27,7 +27,7 @@ func init() {
 		}
 		database.BotStorage.Get(bucketName, MainChain.Key, MainChain)
 
-		m = append(m, new(Middleware).Get)
+		plugins.Middlewares = append(m, new(Middleware).Get)
 	}
 }
 

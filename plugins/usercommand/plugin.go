@@ -11,11 +11,12 @@ import (
 )
 
 const (
+	pluginName    = "usercommand"
 	pluginCommand = "uc"
 )
 
 func init() {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+	if utils.StringInSlice(pluginName, configuration.Config.Plugins) {
 		CreateBucket()
 		plugins.Plugins[pluginCommand] = new(Plugin)
 	}

@@ -15,19 +15,19 @@ const (
 	middlewareName = "usercommand"
 )
 
-// Middleware is the actual middleware.
+// Middleware is the usercommand middleware.
 type Middleware struct{}
 
 func init() {
 	m := plugins.Middlewares
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
 		CreateBucket()
-		m = append(m, new(Middleware).Get)
+		plugins.Middlewares = append(m, new(Middleware).Get)
 	}
 }
 
 // Get actually operates on the message
-func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+func (m *Middleware) Get(ib *irc.Connection, from string, to string, message string) {
 	cnf := configuration.Config
 	if strings.HasPrefix(message, cnf.UserCommandCharacter) {
 		c := Command{message[1:], ""}

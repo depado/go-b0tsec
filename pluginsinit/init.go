@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/plugins"
+	// Blank import for init purpose by self plugin registering
 	_ "github.com/depado/go-b0tsec/plugins/afk"
 	_ "github.com/depado/go-b0tsec/plugins/anon"
 	_ "github.com/depado/go-b0tsec/plugins/choice"

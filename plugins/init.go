@@ -8,5 +8,8 @@ type Plugin interface {
 	Help(*irc.Connection, string)
 }
 
+// Plugins is the map structure of all configured plugins
 var Plugins = map[string]Plugin{}
+
+// Middlewares is the slice of all configured middlewares Get() func
 var Middlewares = []func(*irc.Connection, string, string, string){}

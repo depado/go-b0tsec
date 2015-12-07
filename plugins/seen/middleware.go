@@ -13,13 +13,13 @@ const (
 	middlewareName = "seen"
 )
 
-// Middleware is the github middleware
+// Middleware is the seen middleware
 type Middleware struct{}
 
 func init() {
 	m := plugins.Middlewares
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
-		m = append(m, new(Middleware).Get)
+		plugins.Middlewares = append(m, new(Middleware).Get)
 	}
 }
 

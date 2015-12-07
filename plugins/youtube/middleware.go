@@ -1,6 +1,7 @@
 package youtube
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -24,7 +25,7 @@ var ytre = regexp.MustCompile(`(?:https?://)?(?:(?:www\.)?youtube\.com/watch\?.*
 func init() {
 	m := plugins.Middlewares
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
-		m = append(m, new(Middleware).Get)
+		plugins.Middlewares = append(m, new(Middleware).Get)
 	}
 }
 
@@ -38,6 +39,7 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 		if len(rs) > 0 {
 			service, err := yt.New(client)
 			if err != nil {
+				fmt.Println("should send")
 				log.Printf("Error creating new YouTube client: %v\n", err)
 				return
 			}

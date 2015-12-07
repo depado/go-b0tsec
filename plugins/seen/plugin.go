@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/depado/go-b0tsec/configuration"
-	"github.com/depado/go-b0tsec/plugins/afk"
 	"github.com/depado/go-b0tsec/plugins"
+	"github.com/depado/go-b0tsec/plugins/afk"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )

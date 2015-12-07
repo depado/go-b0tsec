@@ -15,11 +15,12 @@ import (
 )
 
 const (
+	pluginName    = "youtube"
 	pluginCommand = "yt"
 )
 
 func init() {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+	if utils.StringInSlice(pluginName, configuration.Config.Plugins) {
 		plugins.Plugins[pluginCommand] = new(Plugin)
 	}
 }
