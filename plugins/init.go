@@ -8,10 +8,11 @@ import (
 
 // Plugin represents a single plugin. The Get method is use to send things.
 type Plugin interface {
-	//IsStarted() bool
 	Get(*irc.Connection, string, string, []string)
 	Help(*irc.Connection, string)
-	//Stop() error
+	Start() error
+	Stop() error
+	IsStarted() bool
 }
 
 // Middleware represents a single plugin. The Get method is use to send things.
@@ -28,11 +29,28 @@ var Plugins = map[string]Plugin{}
 // Middlewares is the slice of all configured middlewares Get() func
 var Middlewares = []Middleware{}
 
+// ListPlugins returns a list of the started plugins
+func ListPlugins() []string {
+	var list []string
+	for k, p := range Plugins {
+		if p.IsStarted() {
+			list = append(list, k)
+		}
+	}
+	return list
+}
+
 // Stop calls the Stop method of each registered middleware
 func Stop() {
 	for _, k := range Middlewares {
 		if err := k.Stop(); err != nil {
 			log.Println("Error closing middlewares : %s", err)
+		}
+	}
+
+	for _, k := range Plugins {
+		if err := k.Stop(); err != nil {
+			log.Println("Error closing plugins : %s", err)
 		}
 	}
 }
@@ -42,6 +60,11 @@ func Start() {
 	for _, k := range Middlewares {
 		if err := k.Start(); err != nil {
 			log.Println("Error starting middlewares : %s", err)
+		}
+	}
+	for p, k := range Plugins {
+		if err := k.Start(); err != nil {
+			log.Println("Error starting plugin %s : %s", p, err)
 		}
 	}
 }

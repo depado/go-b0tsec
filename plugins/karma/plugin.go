@@ -35,6 +35,14 @@ type Pair struct {
 // PairList is a list of Pair
 type PairList []Pair
 
+// Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
+type Plugin struct {
+	Started bool
+	Data
+	Action map[string]time.Time
+}
+
+// TOFIX: move structures initialization to Start() method
 func init() {
 	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
 		d := Data{make(map[string]int)}
@@ -42,8 +50,7 @@ func init() {
 			log.Fatalf("While initializing Karma plugin : %s", err)
 		}
 		database.BotStorage.Get(bucketName, mainKey, &d)
-		plugins.Plugins[pluginCommand] = &Plugin{d, make(map[string]time.Time)}
-
+		plugins.Plugins[pluginCommand] = &Plugin{false, d, make(map[string]time.Time)}
 	}
 }
 
@@ -74,7 +81,7 @@ func (d Data) Save() error {
 }
 
 // CanModify checks if the args are correct and if the user can modify a karma
-func (p Plugin) CanModify(from string, args []string) error {
+func (p *Plugin) CanModify(from string, args []string) error {
 	if len(args) < 2 {
 		return fmt.Errorf("You need to give a nickname to operate on.")
 	}
@@ -90,7 +97,7 @@ func (p Plugin) CanModify(from string, args []string) error {
 }
 
 // ModifyKarma modifies the karma value of a user and send msg to notify the new count
-func (p Plugin) ModifyKarma(ib *irc.Connection, from string, to string, args []string) {
+func (p *Plugin) ModifyKarma(ib *irc.Connection, from string, to string, args []string) {
 	if err := p.CanModify(from, args); err != nil {
 		ib.Notice(from, err.Error())
 		return
@@ -116,7 +123,7 @@ func (p Plugin) ModifyKarma(ib *irc.Connection, from string, to string, args []s
 }
 
 // GetKarma gets karma value of all
-func (p Plugin) GetKarma(ib *irc.Connection, from string, to string, nicks []string) {
+func (p *Plugin) GetKarma(ib *irc.Connection, from string, to string, nicks []string) {
 	if len(nicks) < 1 {
 		ib.Notice(from, "You need to give a nickname to operate on.")
 		return
@@ -139,14 +146,11 @@ func (p Plugin) GetKarma(ib *irc.Connection, from string, to string, nicks []str
 	}
 }
 
-// Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
-type Plugin struct {
-	Data
-	Action map[string]time.Time
-}
-
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
-func (p Plugin) Help(ib *irc.Connection, from string) {
+func (p *Plugin) Help(ib *irc.Connection, from string) {
+	if !p.Started {
+		return
+	}
 	ib.Privmsg(from, "Allows to add/remove/see karma points to/from/of a person.")
 	ib.Privmsg(from, "Add    : !karma > nickname [optional reason]")
 	ib.Privmsg(from, "Remove : !karma < nickname [optional reason]")
@@ -154,7 +158,10 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 }
 
 // Get is the actual call to your plugin.
-func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !p.Started {
+		return
+	}
 	if len(args) > 0 {
 		switch args[0] {
 		case "<", ">":
@@ -167,12 +174,21 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	}
 }
 
-// NewPlugin initializes new plugin
-func NewPlugin() *Plugin {
-	d := Data{make(map[string]int)}
-	if err := database.BotStorage.CreateBucket(bucketName); err != nil {
-		log.Fatalf("While initializing Karma plugin : %s", err)
+// Start starts the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Start() error {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		p.Started = true
 	}
-	database.BotStorage.Get(bucketName, mainKey, &d)
-	return &Plugin{d, make(map[string]time.Time)}
+	return nil
+}
+
+// Stop stops the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Stop() error {
+	p.Started = false
+	return nil
+}
+
+// IsStarted returns the state of the plugin
+func (p *Plugin) IsStarted() bool {
+	return p.Started
 }

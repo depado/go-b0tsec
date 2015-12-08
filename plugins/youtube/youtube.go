@@ -7,9 +7,6 @@ import (
 	yt "google.golang.org/api/youtube/v3"
 )
 
-// Plugin is the youtube plugin.
-type Plugin struct{}
-
 // FormatOutput is use to format a youtube.Video to a string.
 func FormatOutput(v *yt.Video) string {
 	t := strings.Replace(v.ContentDetails.Duration[2:len(v.ContentDetails.Duration)-1], "M", ":", -1)

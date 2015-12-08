@@ -18,6 +18,11 @@ func main() {
 
 	cnf := configuration.Config
 
+	// Storage initialization
+	if err := database.BotStorage.Open(); err != nil {
+		log.Fatalf("something went wrong with the databse : %v", err)
+	}
+
 	plugins.Start()
 
 	// Defer all Close/Stop methods
