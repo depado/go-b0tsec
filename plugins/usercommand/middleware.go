@@ -22,7 +22,7 @@ func init() {
 	m := plugins.Middlewares
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
 		CreateBucket()
-		plugins.Middlewares = append(m, new(Middleware).Get)
+		plugins.Middlewares = append(m, new(Middleware))
 	}
 }
 
@@ -40,4 +40,9 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 func NewMiddleware() *Middleware {
 	CreateBucket()
 	return new(Middleware)
+}
+
+// Stop returns nil when it didnt encounter any error, the error otherwise
+func (m Middleware) Stop() error {
+	return nil
 }

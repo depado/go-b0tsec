@@ -11,7 +11,6 @@ import (
 	"github.com/depado/go-b0tsec/database"
 	"github.com/depado/go-b0tsec/plugins"
 	_ "github.com/depado/go-b0tsec/pluginsinit"
-	"github.com/depado/go-b0tsec/utils"
 )
 
 func main() {
@@ -19,15 +18,9 @@ func main() {
 
 	cnf := configuration.Config
 
-	// Loggers initialization
-	if err = utils.InitLoggers(); err != nil {
-		log.Fatalf("Something went wrong with the loggers : %v", err)
-	}
-	defer utils.HistoryFile.Close()
-	defer utils.LinkFile.Close()
-
 	// Defer all Close() methods
 	defer database.BotStorage.Close()
+	defer plugins.Close()
 
 	// Bot initialization
 	ib := irc.IRC(cnf.BotName, cnf.BotName)
@@ -53,7 +46,7 @@ func main() {
 		m := e.Message()
 
 		for _, c := range plugins.Middlewares {
-			c(ib, from, to, m)
+			c.Get(ib, from, to, m)
 		}
 
 		if strings.HasPrefix(m, cnf.CommandCharacter) {

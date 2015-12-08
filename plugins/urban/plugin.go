@@ -63,16 +63,16 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 			case "moar":
 				err = p.more()
 				if err != nil {
-					utils.Send(ib, err.Error())
+					ib.Privmsg(to, err.Error())
 				} else {
 					for _, m := range utils.SplitMessage(p.CurrentResult.Definition) {
-						utils.Send(ib, m)
+						ib.Privmsg(to, m)
 					}
 				}
 				return
 			case "quote":
 				for _, m := range utils.SplitMessage(p.CurrentResult.Example) {
-					utils.Send(ib, m)
+					ib.Privmsg(to, m)
 				}
 				return
 			}

@@ -27,7 +27,7 @@ func init() {
 		}
 		database.BotStorage.Get(bucketName, MainChain.Key, MainChain)
 
-		plugins.Middlewares = append(m, new(Middleware).Get)
+		plugins.Middlewares = append(m, new(Middleware))
 	}
 }
 
@@ -64,4 +64,9 @@ func NewMiddleware() *Middleware {
 	}
 	database.BotStorage.Get(bucketName, MainChain.Key, MainChain)
 	return new(Middleware)
+}
+
+// Stop returns nil when it didnt encounter any error, the error otherwise
+func (m Middleware) Stop() error {
+	return nil
 }
