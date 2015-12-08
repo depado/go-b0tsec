@@ -42,16 +42,8 @@ type Plugin struct {
 	Action map[string]time.Time
 }
 
-// TOFIX: move structures initialization to Start() method
 func init() {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
-		d := Data{make(map[string]int)}
-		if err := database.BotStorage.CreateBucket(bucketName); err != nil {
-			log.Fatalf("While initializing Karma plugin : %s", err)
-		}
-		database.BotStorage.Get(bucketName, mainKey, &d)
-		plugins.Plugins[pluginCommand] = &Plugin{false, d, make(map[string]time.Time)}
-	}
+	plugins.Plugins[pluginCommand] = new(Plugin)
 }
 
 func (p PairList) Len() int           { return len(p) }
@@ -177,7 +169,13 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 // Start starts the plugin and returns any occured error, nil otherwise
 func (p *Plugin) Start() error {
 	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
-		p.Started = true
+		if err := database.BotStorage.CreateBucket(bucketName); err != nil {
+			log.Fatalf("Error while creating bucket for the Karma plugin : %s", err)
+		}
+		d := Data{make(map[string]int)}
+		database.BotStorage.Get(bucketName, mainKey, &d)
+
+		plugins.Plugins[pluginCommand] = &Plugin{true, d, make(map[string]time.Time)}
 	}
 	return nil
 }

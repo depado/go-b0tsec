@@ -1,7 +1,6 @@
 package configuration
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"sort"
@@ -41,6 +40,4 @@ func Load(cp string) {
 	}
 	sort.Strings(Config.Plugins)
 	sort.Strings(Config.Middlewares)
-	fmt.Println(Config.Plugins)
-	fmt.Println(Config.Middlewares)
 }
