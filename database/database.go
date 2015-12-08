@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -37,13 +36,6 @@ func (s *Storage) Close() error {
 type Storable interface {
 	Encode() ([]byte, error)
 	Decode([]byte) error
-}
-
-func init() {
-	// Storage initialization
-	if err := BotStorage.Open(); err != nil {
-		log.Fatalf("something went wrong with the databse : %v", err)
-	}
 }
 
 // Save saves some data inside the bucket at the specified key.
