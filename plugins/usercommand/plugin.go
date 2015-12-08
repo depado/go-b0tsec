@@ -83,7 +83,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 
 // Start starts the plugin and returns any occured error, nil otherwise
 func (p *Plugin) Start() error {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+	if utils.StringInSlice(pluginName, configuration.Config.Plugins) {
 		CreateBucket()
 		p.Started = true
 	}

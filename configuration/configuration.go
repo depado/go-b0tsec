@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"sort"
@@ -29,15 +29,6 @@ type Configuration struct {
 // Config is the Configuration instance that will be exposed to the other packages.
 var Config = new(Configuration)
 
-func init() {
-	// Argument parsing
-	confPath := flag.String("c", "conf.yml", "Local path to configuration file.")
-	flag.Parse()
-
-	// Load the configuration of the bot
-	Load(*confPath)
-}
-
 // Load parses the yml file passed as argument and fills the Config.
 func Load(cp string) {
 	conf, err := ioutil.ReadFile(cp)
@@ -50,4 +41,6 @@ func Load(cp string) {
 	}
 	sort.Strings(Config.Plugins)
 	sort.Strings(Config.Middlewares)
+	fmt.Println(Config.Plugins)
+	fmt.Println(Config.Middlewares)
 }
