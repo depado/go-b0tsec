@@ -16,17 +16,22 @@ const (
 	apiURL         = "https://api.github.com/repos/%s/%s%s"
 )
 
+// Middleware is the github middleware
+type Middleware struct {
+	Started bool
+}
+
 var re = regexp.MustCompile("https?://github.com/([^/]+)/([^/]+)(/(issues/[0-9]+|commit/[[:xdigit:]]{40}|pull/[0-9]+))?")
 
 func init() {
-	m := plugins.Middlewares
-	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
-		plugins.Middlewares = append(m, new(Middleware))
-	}
+	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
 }
 
 // Get actually sends the data
-func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+func (m *Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+	if !m.Started {
+		return
+	}
 	for _, bit := range strings.Fields(message) {
 		rs := re.FindAllStringSubmatch(bit, -1)
 		if len(rs) > 0 {
@@ -72,12 +77,21 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	}
 }
 
-// NewMiddleware returns a new Middleware
-func NewMiddleware() *Middleware {
-	return new(Middleware)
+// Start starts the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Start() error {
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		m.Started = true
+	}
+	return nil
 }
 
-// Stop returns nil when it didnt encounter any error, the error otherwise
-func (m Middleware) Stop() error {
+// Stop stops the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Stop() error {
+	m.Started = false
 	return nil
+}
+
+// IsStarted returns the state of the middleware
+func (m *Middleware) IsStarted() bool {
+	return m.Started
 }

@@ -1,6 +1,7 @@
 package markov
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -16,23 +17,19 @@ const (
 )
 
 // Middleware is the actual markov.Middleware
-type Middleware struct{}
+type Middleware struct {
+	Started bool
+}
 
 func init() {
-	m := plugins.Middlewares
-	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
-		MainChain = NewChain("main")
-		if err := database.BotStorage.CreateBucket(bucketName); err != nil {
-			log.Fatalf("While initializing Markov middleware : %s", err)
-		}
-		database.BotStorage.Get(bucketName, MainChain.Key, MainChain)
-
-		plugins.Middlewares = append(m, new(Middleware))
-	}
+	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
 }
 
 // Get actually operates on the message
-func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+func (m *Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+	if !m.Started {
+		return
+	}
 	cnf := configuration.Config
 	if from != cnf.BotName {
 		if !strings.HasPrefix(message, "!") && len(strings.Fields(message)) > 3 && !strings.Contains(message, cnf.BotName) {
@@ -56,17 +53,28 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	}
 }
 
-// NewMiddleware returns a new middleware
-func NewMiddleware() *Middleware {
-	MainChain = NewChain("main")
-	if err := database.BotStorage.CreateBucket(bucketName); err != nil {
-		log.Fatalf("While initializing Markov middleware : %s", err)
+// Start starts the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Start() error {
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		MainChain = NewChain("main")
+		if err := database.BotStorage.CreateBucket(bucketName); err != nil {
+			return fmt.Errorf("While initializing Markov middleware : %s", err)
+		}
+		database.BotStorage.Get(bucketName, MainChain.Key, MainChain)
+
+		m.Started = true
 	}
-	database.BotStorage.Get(bucketName, MainChain.Key, MainChain)
-	return new(Middleware)
+	return nil
 }
 
-// Stop returns nil when it didnt encounter any error, the error otherwise
-func (m Middleware) Stop() error {
+// Stop stops the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Stop() error {
+	MainChain = nil
+	m.Started = false
 	return nil
+}
+
+// IsStarted returns the state of the middleware
+func (m *Middleware) IsStarted() bool {
+	return m.Started
 }

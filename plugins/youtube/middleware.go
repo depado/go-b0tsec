@@ -22,15 +22,20 @@ const (
 
 var ytre = regexp.MustCompile(`(?:https?://)?(?:(?:www\.)?youtube\.com/watch\?.*v=|youtu\.be/)([^&?]{11})`)
 
+// Middleware is the youtube middleware.
+type Middleware struct {
+	Started bool
+}
+
 func init() {
-	m := plugins.Middlewares
-	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
-		plugins.Middlewares = append(m, new(Middleware))
-	}
+	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
 }
 
 // Get actually sends the data
-func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+func (m *Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+	if !m.Started {
+		return
+	}
 	client := &http.Client{
 		Transport: &transport.APIKey{Key: configuration.Config.GoogleAPIKey},
 	}
@@ -55,12 +60,21 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	}
 }
 
-// NewMiddleware returns a new Middleware
-func NewMiddleware() *Middleware {
-	return new(Middleware)
+// Start starts the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Start() error {
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		m.Started = true
+	}
+	return nil
 }
 
-// Stop returns nil when it didnt encounter any error, the error otherwise
-func (m Middleware) Stop() error {
+// Stop stops the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Stop() error {
+	m.Started = false
 	return nil
+}
+
+// IsStarted returns the state of the middleware
+func (m *Middleware) IsStarted() bool {
+	return m.Started
 }

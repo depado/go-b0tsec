@@ -35,21 +35,20 @@ var (
 )
 
 // Middleware is the actual logger.Middleware
-type Middleware struct{}
+type Middleware struct {
+	Started bool
+}
 
 func init() {
-	m := plugins.Middlewares
-	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
-		if err := InitLoggers(); err != nil {
-			log.Println("Error init loggers : %s", err)
-			return
-		}
-		plugins.Middlewares = append(m, new(Middleware))
-	}
+
+	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
 }
 
 // Get actually operates on the message
-func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+func (m *Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+	if !m.Started {
+		return
+	}
 	HistoryLogger.Println(from + " : " + message)
 	for _, field := range strings.Fields(message) {
 		if urlRegex.MatchString(field) {
@@ -58,13 +57,19 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	}
 }
 
-// NewMiddleware returns a new Middleware
-func NewMiddleware() *Middleware {
-	return new(Middleware)
+// Start starts the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Start() error {
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		if err := InitLoggers(); err != nil {
+			return fmt.Errorf("Error init loggers : %s", err)
+		}
+		m.Started = true
+	}
+	return nil
 }
 
 // Stop returns nil when it didnt encounter any error, the error otherwise
-func (m Middleware) Stop() error {
+func (m *Middleware) Stop() error {
 	var closeErr error
 	if err := HistoryFile.Close(); err != nil {
 		log.Println("Error closing history file : %s", err)
@@ -74,7 +79,17 @@ func (m Middleware) Stop() error {
 		log.Println("closing links file : %s", err)
 		closeErr = fmt.Errorf("error occured while closing loggers’ files")
 	}
-	return closeErr
+
+	if closeErr != nil {
+		return closeErr
+	}
+	m.Started = false
+	return nil
+}
+
+// IsStarted returns the state of the middleware
+func (m *Middleware) IsStarted() bool {
+	return m.Started
 }
 
 // InitLoggers initialize the loggers to use with the logger middleware.

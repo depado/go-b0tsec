@@ -18,9 +18,11 @@ func main() {
 
 	cnf := configuration.Config
 
-	// Defer all Close() methods
+	plugins.Start()
+
+	// Defer all Close/Stop methods
 	defer database.BotStorage.Close()
-	defer plugins.Close()
+	defer plugins.Stop()
 
 	// Bot initialization
 	ib := irc.IRC(cnf.BotName, cnf.BotName)

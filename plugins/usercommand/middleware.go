@@ -16,18 +16,19 @@ const (
 )
 
 // Middleware is the usercommand middleware.
-type Middleware struct{}
+type Middleware struct {
+	Started bool
+}
 
 func init() {
-	m := plugins.Middlewares
-	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
-		CreateBucket()
-		plugins.Middlewares = append(m, new(Middleware))
-	}
+	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
 }
 
 // Get actually operates on the message
 func (m *Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+	if !m.Started {
+		return
+	}
 	cnf := configuration.Config
 	if strings.HasPrefix(message, cnf.UserCommandCharacter) {
 		c := Command{message[1:], ""}
@@ -36,13 +37,22 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 	}
 }
 
-// NewMiddleware returns a new middleware
-func NewMiddleware() *Middleware {
-	CreateBucket()
-	return new(Middleware)
+// Start starts the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Start() error {
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		CreateBucket()
+		m.Started = true
+	}
+	return nil
 }
 
-// Stop returns nil when it didnt encounter any error, the error otherwise
-func (m Middleware) Stop() error {
+// Stop stops the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Stop() error {
+	m.Started = false
 	return nil
+}
+
+// IsStarted returns the state of the middleware
+func (m *Middleware) IsStarted() bool {
+	return m.Started
 }

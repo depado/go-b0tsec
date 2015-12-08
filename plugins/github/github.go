@@ -1,8 +1,5 @@
 package github
 
-// Middleware is the github middleware
-type Middleware struct{}
-
 // RepoInfo represents the information relative to the repository
 type RepoInfo struct {
 	Name        string `json:"name"`
