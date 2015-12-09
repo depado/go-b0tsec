@@ -65,7 +65,7 @@ func TestOpenCloseDB(t *testing.T) {
 func TestCreateBucket(t *testing.T) {
 	if BotStorage.Opened {
 		if err := BotStorage.Close(); err != nil {
-			t.Error("Could not close the db : %v", err)
+			t.Error("Could not close the db :", err)
 		}
 	}
 

@@ -44,13 +44,13 @@ func ListPlugins() []string {
 func Stop() {
 	for _, k := range Middlewares {
 		if err := k.Stop(); err != nil {
-			log.Println("Error closing middlewares : %s", err)
+			log.Printf("Error closing middlewares : %v", err)
 		}
 	}
 
 	for _, k := range Plugins {
 		if err := k.Stop(); err != nil {
-			log.Println("Error closing plugins : %s", err)
+			log.Printf("Error closing plugins : %v", err)
 		}
 	}
 }
@@ -59,12 +59,12 @@ func Stop() {
 func Start() {
 	for _, k := range Middlewares {
 		if err := k.Start(); err != nil {
-			log.Println("Error starting middlewares : %s", err)
+			log.Printf("Error starting middlewares : %v", err)
 		}
 	}
 	for p, k := range Plugins {
 		if err := k.Start(); err != nil {
-			log.Println("Error starting plugin %s : %s", p, err)
+			log.Printf("Error starting plugin %s : %s\n", p, err)
 		}
 	}
 }
