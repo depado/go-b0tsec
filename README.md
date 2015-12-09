@@ -21,14 +21,30 @@ IRC bot written in Go with plugins and middlewares.
 This bot is intended to be simple to configure and as such, will use a yaml configuration file. Some values are needed to use some plugins or middlewares.
 
 ```yaml
-# Bot Connection
-bot_name:     awesomebot
-server:       irc.freenode.net:6667
-channel:      "#awesomechan"
-tls:          false
-insecure_tls: false
-# Other Behavior
-youtube_key: "YourVeryOwnYoutubeAPIKey"
+# -------------------------
+# | General Configuration |
+# -------------------------
+bot_name:          AwesomeBot            # Name of your bot
+server:            irc.freenode.net:6667 # The server you want to contact
+channel:           "#AwesomeChan"        # Channel where the bot will live
+tls:               false                 # Activate or not TLS
+insecure_tls:      false                 # Ignore errors when using TLS
+command_character: "!"                   # Set "!" as prefix command character
+
+# ---------------------------
+# | Authentication and Keys |
+# ---------------------------
+google_api_key:   "YouThoughtIWasGoingToVersionThatDidntYou"
+yandex_trnsl_key: "SomeAPIKeyForYandexTranslationServiceIPresume"
+
+# ------------------------------
+# | Plugins/middlewares config |
+# ------------------------------
+user_command_character: "." # Set "." as prefix usercommand character
+
+# ---------------------------
+# | Plugins and middlewares |
+# ---------------------------
 plugins:
     - ud
     - ddg
@@ -39,6 +55,10 @@ plugins:
     - dice
     - afk
     - seen
+    - choice
+    - translate
+    - usercommand
+    - youtube
 middlewares:
     - logger
     - github
@@ -47,6 +67,7 @@ middlewares:
     - seen
     - youtube
     - title
+    - usercommand
 ```
 
  - `bot_name` : The name of your bot as it will appear on the channel.
@@ -54,18 +75,20 @@ middlewares:
  - `channel` : The channel the bot should join when connected to the server.
  - `tls` : Whether or not to use TLS when connecting to the server.
  - `insecure_tls` : Ignore TLS errors (self signed certificate for example)
+ - `command_character` : Character that will be used to call the bot's plugins.
+ - `user_command_character` : Character that will be used to call the user defined commands.
  - `youtube_key` : Your own google API key to fetch the Youtube API.
+ - `yandex_trnsl_key` : Your own Yandex Translation API key to translate.
  - `plugins` : Names of the plugins you want to activate.
  - `middlewares` : Names of the middlewares you want to activate.
 
-**Note : If you don't want to use Youtube capabilities or don't want to create an API key, then make sure to disable the `youtube` middleware**
+**Note : If you don't want to use Youtube capabilities or don't want to create an API key, then make sure to disable the `youtube` middleware and plugin. Same applies for the Yandex Translation service, disable the `translate` plugin.**
 
 **Update : The external resource collection has now moved to a different repository. See [Depado/periodic-file-fetcher](https://github.com/Depado/periodic-file-fetcher) to use this within your bot.**
 
 ## Plugins
 
 A plugin is a command, which can be called using the "!command" syntax. It's the most usual thing you'll ever see with IRC bots.
-To create your own plugin, take a look at the [plugins/example/plugin.go](https://github.com/Depado/go-b0tsec/tree/master/plugins/example/plugin.go) file which is fairly well documented.  
 
 To create more complex commands (with state stored in the `Plugin` structure for example) you can take a look at the already written plugins such as `ud` (the Urban Dictionnary plugin).
 
@@ -75,16 +98,38 @@ To write a plugin you need to satisfy the Plugin interface which is defined like
 type Plugin interface {
 	Get(*irc.Connection, string, string, []string)
 	Help(*irc.Connection, string)
+	Start() error
+	Stop() error
+	IsStarted() bool
 }
 ```
 
-You will then need to register your plugin. There are two techniques to do that :
+You will then need to register your plugin. This is achieved using the init function :
 ```go
-RegisterCommand("myplugin", myplugin.NewPlugin())
-// Or
-RegisterCommand("myplugin", new(myplugin.Plugin))
+func init() {
+	plugins.Plugins["command"] = new(Plugin)
+}
 ```
-I would advise to always use the first method as it allows you to initialize some data when registering your plugin. This is usually done in the [plugins/init.go](https://github.com/Depado/go-b0tsec/tree/master/plugins/init.go) file but you can register your plugins anywhere in your code.
+
+To activate your plugin, you must set the `Plugin.Started` to `true`, otherwise the core won't take it into account. You can either refer to the configuration as follow :
+```go
+func (p *Plugin) Start() error {
+	if utils.StringInSlice("plugin_name", configuration.Config.Plugins) {
+		p.Started = true
+	}
+	return nil
+}
+```
+
+Or if you want to use it and not make it configurable, you can also do this :
+```go
+func (p *Plugin) Start() error {
+	p.Started = true
+	return nil
+}
+```
+
+For a complete example, please refer to one of the many plugin that are available.
 
 ## Middlewares
 
