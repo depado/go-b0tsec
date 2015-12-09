@@ -122,6 +122,11 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 					return
 				}
 
+				if len(data) == 0 {
+					ib.Privmsg(to, "No content at this url")
+					return
+				}
+
 				mimetype, err := GetMimetype(data)
 				if err != nil {
 					log.Println(err)
