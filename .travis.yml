@@ -6,7 +6,9 @@ go:
 
 go_import_path: github.com/depado/go-b0tsec
 
-cache: apt
+env:
+  - GOARCH=amd64
+  - GOARCH=arm
 
 addons:
     apt:
