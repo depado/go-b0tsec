@@ -5,11 +5,15 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
-const apiURL = "http://api.urbandictionary.com/v0/define?term=%s"
+const (
+	pluginCommand = "ud"
+	apiURL        = "http://api.urbandictionary.com/v0/define?term=%s"
+)
 
 type message struct {
 	Tags       []string   `json:"tags"`
@@ -32,13 +36,21 @@ type udResult struct {
 
 // Plugin is the Urban dictionary plugin.
 type Plugin struct {
+	Started       bool
 	Last          message
 	CurrentResult udResult
 	Current       int
 }
 
+func init() {
+	plugins.Plugins[pluginCommand] = new(Plugin)
+}
+
 // Help must send the help about this plugin.
-func (p Plugin) Help(ib *irc.Connection, from string) {
+func (p *Plugin) Help(ib *irc.Connection, from string) {
+	if !p.Started {
+		return
+	}
 	ib.Privmsg(from, "Allows to search a term on the Urban Dictionnary")
 	ib.Privmsg(from, "Optional argument : moar - Allows to search another definition from the previous search.")
 	ib.Privmsg(from, "Optional argument : quote - Allows to search a quote from the previous search.")
@@ -46,6 +58,9 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 
 // Get actually sends the data to the channel.
 func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !p.Started {
+		return
+	}
 	if len(args) > 0 {
 		var err error
 		if len(args) == 1 {
@@ -53,16 +68,16 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 			case "moar":
 				err = p.more()
 				if err != nil {
-					utils.Send(ib, err.Error())
+					ib.Privmsg(to, err.Error())
 				} else {
 					for _, m := range utils.SplitMessage(p.CurrentResult.Definition) {
-						utils.Send(ib, m)
+						ib.Privmsg(to, m)
 					}
 				}
 				return
 			case "quote":
 				for _, m := range utils.SplitMessage(p.CurrentResult.Example) {
-					utils.Send(ib, m)
+					ib.Privmsg(to, m)
 				}
 				return
 			}
@@ -112,7 +127,21 @@ func (p *Plugin) fetch(query string) error {
 	return nil
 }
 
-// NewPlugin returns a new plugin
-func NewPlugin() *Plugin {
-	return new(Plugin)
+// Start starts the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Start() error {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		p.Started = true
+	}
+	return nil
+}
+
+// Stop stops the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Stop() error {
+	p.Started = false
+	return nil
+}
+
+// IsStarted returns the state of the plugin
+func (p *Plugin) IsStarted() bool {
+	return p.Started
 }

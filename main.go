@@ -11,11 +11,13 @@ import (
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/database"
 	"github.com/depado/go-b0tsec/plugins"
-	"github.com/depado/go-b0tsec/utils"
+	_ "github.com/depado/go-b0tsec/pluginsinit"
 )
 
 func main() {
 	var err error
+
+	cnf := configuration.Config
 
 	// Argument parsing
 	confPath := flag.String("c", "conf.yml", "Local path to configuration file.")
@@ -23,23 +25,17 @@ func main() {
 
 	// Load the configuration of the bot
 	configuration.Load(*confPath)
-	cnf := configuration.Config
-
-	// Loggers initialization
-	if err = utils.InitLoggers(); err != nil {
-		log.Fatalf("Something went wrong with the loggers : %v", err)
-	}
-	defer utils.HistoryFile.Close()
-	defer utils.LinkFile.Close()
 
 	// Storage initialization
-	if err = database.BotStorage.Open(); err != nil {
-		log.Fatalf("Something went wrong with the databse : %v", err)
+	if err := database.BotStorage.Open(); err != nil {
+		log.Fatalf("something went wrong with the databse : %v", err)
 	}
-	defer database.BotStorage.Close()
 
-	// Plugins initialization
-	plugins.Init()
+	plugins.Start()
+
+	// Defer all Close/Stop methods
+	defer database.BotStorage.Close()
+	defer plugins.Stop()
 
 	// Bot initialization
 	ib := irc.IRC(cnf.BotName, cnf.BotName)
@@ -65,7 +61,7 @@ func main() {
 		m := e.Message()
 
 		for _, c := range plugins.Middlewares {
-			c(ib, from, to, m)
+			c.Get(ib, from, to, m)
 		}
 
 		if strings.HasPrefix(m, cnf.CommandCharacter) {

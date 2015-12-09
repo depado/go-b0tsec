@@ -1,10 +1,5 @@
 package utils
 
-import (
-	"github.com/depado/go-b0tsec/configuration"
-	"github.com/thoj/go-ircevent"
-)
-
 const maxBufferSize = 450
 
 // SplitMessage splits a long message into smaller ones so they can all be sent
@@ -28,10 +23,4 @@ func SplitMessage(m string) []string {
 		res = append(res, rest)
 	}
 	return res
-}
-
-// Send sends a message m through the irc Connection ib. It sends it to the
-// configured channel.
-func Send(ib *irc.Connection, m string) {
-	ib.Privmsg(configuration.Config.Channel, m)
 }

@@ -5,14 +5,30 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/plugins"
+	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
+const (
+	pluginName    = "usercommand"
+	pluginCommand = "uc"
+)
+
+func init() {
+	plugins.Plugins[pluginCommand] = new(Plugin)
+}
+
 // Plugin is the usercommand.Plugin type
-type Plugin struct{}
+type Plugin struct {
+	Started bool
+}
 
 // Help displays the help for the plugin
-func (p Plugin) Help(ib *irc.Connection, from string) {
+func (p *Plugin) Help(ib *irc.Connection, from string) {
+	if !p.Started {
+		return
+	}
 	ib.Privmsg(from, "This command allows user to create, list and delete their own commands")
 	ib.Privmsg(from, "Example :")
 	ib.Privmsg(from, "!uc introduce Hi im go-b0tsec !")
@@ -26,7 +42,10 @@ func (p Plugin) Help(ib *irc.Connection, from string) {
 }
 
 // Get actually acts
-func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !p.Started {
+		return
+	}
 	if to == configuration.Config.BotName {
 		to = from
 	}
@@ -62,8 +81,22 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	ib.Privmsgf(to, "Registered commands : %s", strings.Join(l, " "))
 }
 
-// NewPlugin returns a new plugin
-func NewPlugin() *Plugin {
-	CreateBucket()
-	return new(Plugin)
+// Start starts the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Start() error {
+	if utils.StringInSlice(pluginName, configuration.Config.Plugins) {
+		CreateBucket()
+		p.Started = true
+	}
+	return nil
+}
+
+// Stop stops the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Stop() error {
+	p.Started = false
+	return nil
+}
+
+// IsStarted returns the state of the plugin
+func (p *Plugin) IsStarted() bool {
+	return p.Started
 }

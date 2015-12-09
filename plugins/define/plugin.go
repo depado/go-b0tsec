@@ -7,11 +7,16 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
 
-var dictionnaryEndpoint string
+const (
+	pluginCommand = "define"
+)
+
+var dictionnaryEndpoint = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=" + configuration.Config.YandexDictKey + "&lang=%s&text=%s"
 
 // YandexDict struct holds the response of a call to the Yandex dictionnary API.
 type YandexDict struct {
@@ -40,15 +45,29 @@ type YandexDict struct {
 }
 
 // Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
-type Plugin struct{}
+type Plugin struct {
+	Started bool
+}
+
+func init() {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		plugins.Plugins[pluginCommand] = new(Plugin)
+	}
+}
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
-func (p Plugin) Help(ib *irc.Connection, from string) {
+func (p *Plugin) Help(ib *irc.Connection, from string) {
+	if !p.Started {
+		return
+	}
 	ib.Privmsg(from, "This command will never work due to Google being huge assholes.")
 }
 
 // Get is the actual call to your plugin.
-func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !p.Started {
+		return
+	}
 	if to == configuration.Config.BotName {
 		to = from
 	}
@@ -76,8 +95,21 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	}
 }
 
-// NewPlugin returns a new plugin
-func NewPlugin() *Plugin {
-	dictionnaryEndpoint = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=" + configuration.Config.YandexDictKey + "&lang=%s&text=%s"
-	return new(Plugin)
+// Start starts the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Start() error {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		p.Started = true
+	}
+	return nil
+}
+
+// Stop stops the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Stop() error {
+	p.Started = false
+	return nil
+}
+
+// IsStarted returns the state of the plugin
+func (p *Plugin) IsStarted() bool {
+	return p.Started
 }

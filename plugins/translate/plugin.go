@@ -7,9 +7,16 @@ import (
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 	"github.com/thoj/go-ircevent"
 )
+
+const (
+	pluginCommand = "translate"
+)
+
+var translateEndpoint = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + configuration.Config.YandexTrnslKey + "&lang=%s&text=%s"
 
 // Yandex struct represents the response of the Yandex translate API.
 type Yandex struct {
@@ -18,20 +25,30 @@ type Yandex struct {
 	Text []string `json:"text"`
 }
 
-var translateEndpoint string
-
 // Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
-type Plugin struct{}
+type Plugin struct {
+	Started bool
+}
+
+func init() {
+	plugins.Plugins[pluginCommand] = new(Plugin)
+}
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
-func (p Plugin) Help(ib *irc.Connection, from string) {
+func (p *Plugin) Help(ib *irc.Connection, from string) {
+	if !p.Started {
+		return
+	}
 	ib.Privmsg(from, "Translate things from one language to another.")
 	ib.Privmsg(from, "Example (english to french) : !translate flying saucer > fr")
 	ib.Privmsg(from, "Example (french to english) : !translate soucoupe volante > en")
 }
 
 // Get is the actual call to your plugin.
-func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !p.Started {
+		return
+	}
 	if to == configuration.Config.BotName {
 		to = from
 	}
@@ -52,8 +69,21 @@ func (p Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
 	}
 }
 
-// NewPlugin returns a new plugin
-func NewPlugin() *Plugin {
-	translateEndpoint = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + configuration.Config.YandexTrnslKey + "&lang=%s&text=%s"
-	return new(Plugin)
+// Start starts the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Start() error {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+		p.Started = true
+	}
+	return nil
+}
+
+// Stop stops the plugin and returns any occured error, nil otherwise
+func (p *Plugin) Stop() error {
+	p.Started = false
+	return nil
+}
+
+// IsStarted returns the state of the plugin
+func (p *Plugin) IsStarted() bool {
+	return p.Started
 }

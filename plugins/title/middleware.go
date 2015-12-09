@@ -13,16 +13,27 @@ import (
 	"golang.org/x/net/html"
 
 	"github.com/depado/go-b0tsec/configuration"
+	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
 
 	"github.com/rakyll/magicmime"
 	"github.com/thoj/go-ircevent"
 )
 
+const (
+	middlewareName = "title"
+)
+
 var re = regexp.MustCompile(`(?:https?://)(?:www.)?([^/]*).*`)
 
-// Middleware is the github middleware
-type Middleware struct{}
+// Middleware is the title middleware
+type Middleware struct {
+	Started bool
+}
+
+func init() {
+	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
+}
 
 // GetTitle gets the title token of a HTML page
 func GetTitle(resp *http.Response, url string) string {
@@ -78,7 +89,10 @@ func IsURLToTreat(host string) bool {
 }
 
 // Get actually sends the data
-func (m Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+func (m *Middleware) Get(ib *irc.Connection, from string, to string, message string) {
+	if !m.Started {
+		return
+	}
 	cnf := configuration.Config
 	if to == cnf.BotName {
 		to = from
@@ -127,7 +141,21 @@ func (m Middleware) Get(ib *irc.Connection, from string, to string, message stri
 	}
 }
 
-// NewMiddleware returns a new Middleware
-func NewMiddleware() *Middleware {
-	return new(Middleware)
+// Start starts the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Start() error {
+	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
+		m.Started = true
+	}
+	return nil
+}
+
+// Stop stops the middleware and returns any occured error, nil otherwise
+func (m *Middleware) Stop() error {
+	m.Started = false
+	return nil
+}
+
+// IsStarted returns the state of the middleware
+func (m *Middleware) IsStarted() bool {
+	return m.Started
 }
