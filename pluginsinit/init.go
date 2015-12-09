@@ -6,7 +6,6 @@ import (
 	_ "github.com/depado/go-b0tsec/plugins/anon"
 	_ "github.com/depado/go-b0tsec/plugins/choice"
 	_ "github.com/depado/go-b0tsec/plugins/core/help"
-	_ "github.com/depado/go-b0tsec/plugins/define"
 	_ "github.com/depado/go-b0tsec/plugins/dice"
 	_ "github.com/depado/go-b0tsec/plugins/duckduckgo"
 	_ "github.com/depado/go-b0tsec/plugins/github"

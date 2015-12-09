@@ -34,7 +34,6 @@ plugins:
     - seen
     - choice
     - translate
-    - define
     - usercommand
     - youtube
 middlewares:
