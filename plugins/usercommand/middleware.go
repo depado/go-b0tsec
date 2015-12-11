@@ -30,11 +30,24 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 		return
 	}
 	cnf := configuration.Config
-	if strings.HasPrefix(message, cnf.UserCommandCharacter) {
-		c := Command{message[1:], ""}
-		database.BotStorage.Get(bucketName, c.Name, &c)
-		ib.Privmsg(to, c.Value)
+	if !strings.HasPrefix(message, cnf.UserCommandCharacter) {
+		return
 	}
+	c := Command{message[1:], ""}
+	database.BotStorage.Get(bucketName, c.Name, &c)
+
+	if strings.HasPrefix(c.Value, cnf.CommandCharacter) {
+		if len(c.Value) > 1 {
+			splitted := strings.Fields(c.Value[1:])
+			command := splitted[0]
+			args := splitted[1:]
+			if p, ok := plugins.Plugins[command]; ok {
+				p.Get(ib, from, to, args)
+				return
+			}
+		}
+	}
+	ib.Privmsg(to, c.Value)
 }
 
 // Start starts the middleware and returns any occured error, nil otherwise
