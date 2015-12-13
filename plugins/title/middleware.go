@@ -53,6 +53,7 @@ func GetTitle(resp *http.Response, url string) string {
 				if len(d) > 450 {
 					d = d[:450]
 				}
+				d = strings.TrimSpace(strings.Replace(d, "\n", " ", -1))
 				if fURL != url {
 					return fmt.Sprintf("%v (%v)", d, fURL)
 				}
