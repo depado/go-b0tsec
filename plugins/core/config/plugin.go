@@ -16,7 +16,7 @@ const (
 	pluginName = "config"
 )
 
-type Modifier struct {
+type modifier struct {
 	Plugins     []string
 	Middlewares []string
 }
@@ -25,8 +25,8 @@ type Modifier struct {
 type Plugin struct {
 	Pending bool
 	Auth    bool
-	ToStart *Modifier
-	ToStop  *Modifier
+	ToStart *modifier
+	ToStop  *modifier
 }
 
 // init initializes all the plugins and middlewares.
@@ -57,8 +57,8 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 		ib.ClearCallback("318")
 		time.Sleep(1 * time.Second)
 		if !p.Auth {
-			p.ToStop = new(Modifier)
-			p.ToStart = new(Modifier)
+			p.ToStop = new(modifier)
+			p.ToStart = new(modifier)
 			p.Pending = false
 			ib.Privmsg(to, "You are not a registered admin.")
 			return
@@ -66,7 +66,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 		p.Modify()
 	})
 
-	p.ProcessArgs(args)
+	p.processArgs(args)
 
 	ib.Whois(from)
 }
@@ -78,8 +78,8 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 
 // Start returns nil since it is a core plugin
 func (p *Plugin) Start() error {
-	p.ToStop = new(Modifier)
-	p.ToStart = new(Modifier)
+	p.ToStop = new(modifier)
+	p.ToStart = new(modifier)
 	return nil
 }
 
@@ -93,7 +93,7 @@ func (p *Plugin) IsStarted() bool {
 	return true
 }
 
-func (p *Plugin) ProcessArgs(args []string) {
+func (p *Plugin) processArgs(args []string) {
 	for _, i := range args {
 		if strings.HasPrefix(i, "-") {
 			if i[1:2] == "m:" {
@@ -157,8 +157,8 @@ func (p *Plugin) Modify() {
 		}
 	}
 	plugins.Start()
-	p.ToStart = new(Modifier)
-	p.ToStop = new(Modifier)
+	p.ToStart = new(modifier)
+	p.ToStop = new(modifier)
 	p.Auth = false
 	p.Pending = false
 }

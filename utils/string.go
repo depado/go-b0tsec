@@ -22,7 +22,7 @@ func IndexStringInSlice(a string, l []string) (int, bool) {
 	return -1, false
 }
 
-// RemoveString removes a string a from the slice l
+// RemoveStringInSlice removes a string a from the slice l
 func RemoveStringInSlice(a string, l []string) ([]string, bool) {
 	i, in := IndexStringInSlice(a, l)
 
