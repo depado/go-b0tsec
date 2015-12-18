@@ -30,6 +30,9 @@ channel:           "#AwesomeChan"        # Channel where the bot will live
 tls:               false                 # Activate or not TLS
 insecure_tls:      false                 # Ignore errors when using TLS
 command_character: "!"                   # Set "!" as prefix command character
+admins:
+    - "Depado"
+    - "nado"
 
 # ---------------------------
 # | Authentication and Keys |
@@ -81,6 +84,7 @@ middlewares:
  - `yandex_trnsl_key` : Your own Yandex Translation API key to translate.
  - `plugins` : Names of the plugins you want to activate.
  - `middlewares` : Names of the middlewares you want to activate.
+ - `admins` : Names of the administrators of the bot
 
 **Note : If you don't want to use Youtube capabilities or don't want to create an API key, then make sure to disable the `youtube` middleware and plugin. Same applies for the Yandex Translation service, disable the `translate` plugin.**
 
@@ -148,15 +152,15 @@ type Middleware interface {
 ```
 
 As for the plugins, I'd advise you to create a package per middleware, and call the middleware struct "Middleware" to keep the API stable and uniform.  
-You can then register your middleware like that :
+You can then register your middleware the same way as a plugin :
 
 ```go
-RegisterMiddleware(mymiddleware.NewMiddleware())
-// Or
-RegisterMiddleware(new(mymiddleware.Middleware))
+func init() {
+	plugins.Middlewares["name"] = new(Middleware)
+}
 ```
 
-I'd also recommend the first way of registering your middleware as it allows you to initialize some data in your `Middleware` struct.
+You must also implement the `Middleware.Start()`, `Middleware.Stop()` and `Middleware.IsStarted()` in order to be managed correctly for live reconfiguration.
 
 ## Mixins
 

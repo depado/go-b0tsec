@@ -21,7 +21,7 @@ type Middleware struct {
 }
 
 func init() {
-	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
+	plugins.Middlewares[middlewareName] = new(Middleware)
 }
 
 // Get actually operates on the message
@@ -34,15 +34,15 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 		return
 	}
 
-	splitted_msg := strings.Fields(message[1:])
-	c := Command{splitted_msg[0], ""}
+	splittedMsg := strings.Fields(message[1:])
+	c := Command{splittedMsg[0], ""}
 	database.BotStorage.Get(bucketName, c.Name, &c)
 
 	if strings.HasPrefix(c.Value, cnf.CommandCharacter) {
 		if len(c.Value) > 1 {
-			splitted_command := strings.Fields(c.Value[1:])
-			command := splitted_command[0]
-			args := append(splitted_command[1:], splitted_msg[1:]...)
+			splittedCommand := strings.Fields(c.Value[1:])
+			command := splittedCommand[0]
+			args := append(splittedCommand[1:], splittedMsg[1:]...)
 			if p, ok := plugins.Plugins[command]; ok {
 				p.Get(ib, from, to, args)
 				return
@@ -51,8 +51,8 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 	}
 	var msg string
 	msg = c.Value
-	if len(splitted_msg) > 1 {
-		msg += " " + strings.Join(splitted_msg[1:], " ")
+	if len(splittedMsg) > 1 {
+		msg += " " + strings.Join(splittedMsg[1:], " ")
 	}
 	ib.Privmsg(to, msg)
 }

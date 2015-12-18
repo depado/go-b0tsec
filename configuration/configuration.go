@@ -18,6 +18,7 @@ type Configuration struct {
 	CommandCharacter     string   `yaml:"command_character"`
 	Middlewares          []string `yaml:"middlewares"`
 	Plugins              []string `yaml:"plugins"`
+	Admins               []string `yaml:"admins"`
 	GoogleAPIKey         string   `yaml:"google_api_key"`
 	YandexTrnslKey       string   `yaml:"yandex_trnsl_key"`
 	YandexDictKey        string   `yaml:"yandex_dict_key"`

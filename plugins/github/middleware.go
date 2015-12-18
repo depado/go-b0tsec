@@ -24,7 +24,7 @@ type Middleware struct {
 var re = regexp.MustCompile("https?://github.com/([^/]+)/([^/]+)(/(issues/[0-9]+|commit/[[:xdigit:]]{40}|pull/[0-9]+))?")
 
 func init() {
-	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
+	plugins.Middlewares[middlewareName] = new(Middleware)
 }
 
 // Get actually sends the data

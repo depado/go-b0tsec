@@ -32,7 +32,7 @@ type Middleware struct {
 }
 
 func init() {
-	plugins.Middlewares = append(plugins.Middlewares, new(Middleware))
+	plugins.Middlewares[middlewareName] = new(Middleware)
 }
 
 // GetTitle gets the title token of a HTML page
