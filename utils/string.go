@@ -27,7 +27,7 @@ func RemoveStringInSlice(a string, l []string) ([]string, bool) {
 	i, in := IndexStringInSlice(a, l)
 
 	if in {
-		l = append(l[:i], l[i:]...)
+		l = append(l[:i], l[i+1:]...)
 	}
 	return l, in
 }
