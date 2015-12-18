@@ -36,6 +36,10 @@ func init() {
 
 // Get actually executes the command.
 func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !utils.StringInSlice(from, configuration.Config.Admins) {
+		ib.Privmsg(to, "You are not a registered admin.")
+		return
+	}
 	if len(args) == 0 {
 		list := List()
 		ib.Privmsgf(to, "Plugins     : %s", list[0])
@@ -60,7 +64,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 			p.ToStop = new(modifier)
 			p.ToStart = new(modifier)
 			p.Pending = false
-			ib.Privmsg(to, "You are not a registered admin.")
+			ib.Privmsg(to, "You must identify to nickserv in order to use this plugin.")
 			return
 		}
 		p.Modify()

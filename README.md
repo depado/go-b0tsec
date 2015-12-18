@@ -30,6 +30,9 @@ channel:           "#AwesomeChan"        # Channel where the bot will live
 tls:               false                 # Activate or not TLS
 insecure_tls:      false                 # Ignore errors when using TLS
 command_character: "!"                   # Set "!" as prefix command character
+admins:
+    - "Depado"
+    - "nado"
 
 # ---------------------------
 # | Authentication and Keys |
@@ -81,6 +84,7 @@ middlewares:
  - `yandex_trnsl_key` : Your own Yandex Translation API key to translate.
  - `plugins` : Names of the plugins you want to activate.
  - `middlewares` : Names of the middlewares you want to activate.
+ - `admins` : Names of the administrators of the bot
 
 **Note : If you don't want to use Youtube capabilities or don't want to create an API key, then make sure to disable the `youtube` middleware and plugin. Same applies for the Yandex Translation service, disable the `translate` plugin.**
 
