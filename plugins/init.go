@@ -27,7 +27,7 @@ type Middleware interface {
 var Plugins = map[string]Plugin{}
 
 // Middlewares is the slice of all configured middlewares Get() func
-var Middlewares = []Middleware{}
+var Middlewares = map[string]Middleware{}
 
 // ListPlugins returns a list of the started plugins
 func ListPlugins() []string {

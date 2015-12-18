@@ -5,6 +5,7 @@ import (
 	_ "github.com/depado/go-b0tsec/plugins/afk"
 	_ "github.com/depado/go-b0tsec/plugins/anon"
 	_ "github.com/depado/go-b0tsec/plugins/choice"
+	_ "github.com/depado/go-b0tsec/plugins/core/config"
 	_ "github.com/depado/go-b0tsec/plugins/core/help"
 	_ "github.com/depado/go-b0tsec/plugins/dice"
 	_ "github.com/depado/go-b0tsec/plugins/duckduckgo"

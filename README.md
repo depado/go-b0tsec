@@ -148,15 +148,15 @@ type Middleware interface {
 ```
 
 As for the plugins, I'd advise you to create a package per middleware, and call the middleware struct "Middleware" to keep the API stable and uniform.  
-You can then register your middleware like that :
+You can then register your middleware the same way as a plugin :
 
 ```go
-RegisterMiddleware(mymiddleware.NewMiddleware())
-// Or
-RegisterMiddleware(new(mymiddleware.Middleware))
+func init() {
+	plugins.Middlewares["name"] = new(Middleware)
+}
 ```
 
-I'd also recommend the first way of registering your middleware as it allows you to initialize some data in your `Middleware` struct.
+You must also implement the `Middleware.Start()`, `Middleware.Stop()` and `Middleware.IsStarted()` in order to be managed correctly for live reconfiguration.
 
 ## Mixins
 
