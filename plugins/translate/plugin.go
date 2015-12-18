@@ -16,7 +16,7 @@ const (
 	pluginCommand = "translate"
 )
 
-var translateEndpoint = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + configuration.Config.YandexTrnslKey + "&lang=%s&text=%s"
+var translateEndpoint = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=%s&lang=%s&text=%s"
 
 // Yandex struct represents the response of the Yandex translate API.
 type Yandex struct {
@@ -46,16 +46,17 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 
 // Get is the actual call to your plugin.
 func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	cnf := configuration.Config
 	if !p.Started {
 		return
 	}
-	if to == configuration.Config.BotName {
+	if to == cnf.BotName {
 		to = from
 	}
 	if len(args) > 2 && args[len(args)-2] == ">" {
 		lang := args[len(args)-1]
 		q := url.QueryEscape(strings.Join(args[:len(args)-2], " "))
-		endpoint := fmt.Sprintf(translateEndpoint, lang, q)
+		endpoint := fmt.Sprintf(translateEndpoint, cnf.YandexTrnslKey, lang, q)
 		yr := Yandex{}
 		if err := utils.FetchURL(endpoint, &yr); err != nil {
 			log.Println(err)
@@ -64,7 +65,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 		if len(yr.Text) > 0 {
 			ib.Privmsgf(to, "%v: \x0314[%v]\x0F\x03 %v", from, yr.Lang, yr.Text[0])
 		} else {
-			ib.Privmsgf(to, "%v: \x0314Unrecognised language.\x0F\x03", from, yr.Lang)
+			ib.Privmsgf(to, "%v: \x0314Unrecognised language.\x0F\x03", from)
 		}
 	}
 }

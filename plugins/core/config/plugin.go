@@ -36,6 +36,9 @@ func init() {
 
 // Get actually executes the command.
 func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+	if to == configuration.Config.BotName {
+		to = from
+	}
 	if !utils.StringInSlice(from, configuration.Config.Admins) {
 		ib.Privmsg(to, "You are not a registered admin.")
 		return
@@ -171,9 +174,9 @@ func List() [2]string {
 	}
 	for k, p := range plugins.Middlewares {
 		if p.IsStarted() {
-			list[1] += fmt.Sprintf(" \x0303+%s\x03", k)
+			list[1] += fmt.Sprintf(" \x0303+%v\x03", k)
 		} else {
-			list[1] += fmt.Sprintf(" \x0304-%s\x0F\x03", k)
+			list[1] += fmt.Sprintf(" \x0304-%v\x0F\x03", k)
 		}
 	}
 	return list
