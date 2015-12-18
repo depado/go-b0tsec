@@ -120,40 +120,32 @@ func (p *Plugin) processArgs(args []string) {
 // Modify executes the requested changes
 func (p *Plugin) Modify() {
 	cnf := configuration.Config
-	if len(p.ToStart.Plugins) > 0 {
-		for _, n := range p.ToStart.Plugins {
-			if !utils.StringInSlice(n, cnf.Plugins) {
-				if _, ok := plugins.Plugins[n]; ok {
-					cnf.Plugins = append(cnf.Plugins, n)
-				}
+	for _, n := range p.ToStart.Plugins {
+		if !utils.StringInSlice(n, cnf.Plugins) {
+			if _, ok := plugins.Plugins[n]; ok {
+				cnf.Plugins = append(cnf.Plugins, n)
 			}
 		}
 	}
-	if len(p.ToStart.Middlewares) > 0 {
-		for _, n := range p.ToStart.Middlewares {
-			if !utils.StringInSlice(n, cnf.Middlewares) {
-				if _, ok := plugins.Middlewares[n]; ok {
-					cnf.Middlewares = append(cnf.Middlewares, n)
-				}
+	for _, n := range p.ToStart.Middlewares {
+		if !utils.StringInSlice(n, cnf.Middlewares) {
+			if _, ok := plugins.Middlewares[n]; ok {
+				cnf.Middlewares = append(cnf.Middlewares, n)
 			}
 		}
 	}
-	if len(p.ToStop.Plugins) > 0 {
-		var removed bool
-		for _, n := range p.ToStop.Plugins {
-			cnf.Plugins, removed = utils.RemoveStringInSlice(n, cnf.Plugins)
-			if removed {
-				plugins.Plugins[n].Stop()
-			}
+	var removed bool
+	for _, n := range p.ToStop.Plugins {
+		cnf.Plugins, removed = utils.RemoveStringInSlice(n, cnf.Plugins)
+		if removed {
+			plugins.Plugins[n].Stop()
 		}
 	}
-	if len(p.ToStop.Middlewares) > 0 {
-		var removed bool
-		for _, n := range p.ToStop.Middlewares {
-			cnf.Middlewares, removed = utils.RemoveStringInSlice(n, cnf.Middlewares)
-			if removed {
-				plugins.Middlewares[n].Stop()
-			}
+
+	for _, n := range p.ToStop.Middlewares {
+		cnf.Middlewares, removed = utils.RemoveStringInSlice(n, cnf.Middlewares)
+		if removed {
+			plugins.Middlewares[n].Stop()
 		}
 	}
 	plugins.Start()
