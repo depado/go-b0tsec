@@ -20,11 +20,11 @@ func main() {
 	cnf := configuration.Config
 
 	// Argument parsing
-	confPath := flag.String("c", "conf.yml", "Local path to configuration file.")
+	configuration.ConfPath = flag.String("c", "conf.yml", "Local path to configuration file.")
 	flag.Parse()
 
 	// Load the configuration of the bot
-	configuration.Load(*confPath)
+	configuration.Load()
 
 	// Storage initialization
 	if err := database.BotStorage.Open(); err != nil {

@@ -27,11 +27,14 @@ type Configuration struct {
 }
 
 // Config is the Configuration instance that will be exposed to the other packages.
-var Config = new(Configuration)
+var (
+	Config   = new(Configuration)
+	ConfPath *string
+)
 
 // Load parses the yml file passed as argument and fills the Config.
-func Load(cp string) {
-	conf, err := ioutil.ReadFile(cp)
+func Load() {
+	conf, err := ioutil.ReadFile(*ConfPath)
 	if err != nil {
 		log.Fatalf("Could not read configuration : %v", err)
 	}
@@ -41,4 +44,18 @@ func Load(cp string) {
 	}
 	sort.Strings(Config.Plugins)
 	sort.Strings(Config.Middlewares)
+}
+
+// Save saves the actual config to the config path appended by ".new"
+func Save() {
+	conf, err := yaml.Marshal(&Config)
+	if err != nil {
+		log.Printf("Could not Marshal the configuration to yaml : %s", err.Error)
+		return
+	}
+
+	err = ioutil.WriteFile(*ConfPath, conf, 0644)
+	if err != nil {
+		log.Printf("Error saving config to %s : %s", *ConfPath, err.Error)
+	}
 }
