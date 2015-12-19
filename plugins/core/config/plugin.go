@@ -27,6 +27,7 @@ type Plugin struct {
 	auth    bool
 	toStart *modifier
 	toStop  *modifier
+	args    []string
 }
 
 // init initializes all the plugins and middlewares.
@@ -40,7 +41,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 		to = from
 	}
 	if !utils.StringInSlice(from, configuration.Config.Admins) {
-		ib.Privmsg(to, "You are not a registered admin.")
+		ib.Notice(to, "You are not a registered admin.")
 		return
 	}
 	if len(args) == 0 {
@@ -51,7 +52,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 	}
 
 	if p.pending {
-		ib.Privmsg(to, "Wait for other operations to complete")
+		ib.Notice(to, "Wait for other operations to complete")
 		return
 	}
 	p.pending = true
@@ -64,18 +65,17 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 		ib.ClearCallback("318")
 		time.Sleep(1 * time.Second)
 		if !p.auth {
-			p.toStop = new(modifier)
-			p.toStart = new(modifier)
+			ib.Notice(to, "You must identify to nickserv in order to use this plugin.")
 			p.pending = false
-			ib.Privmsg(to, "You must identify to nickserv in order to use this plugin.")
 			return
 		}
+		p.processArgs(args)
 		if p.Modify() {
 			ib.Privmsg(to, "Configuration changed")
 		}
 	})
 
-	p.processArgs(args)
+	p.args = args
 
 	ib.Whois(from)
 }
@@ -91,6 +91,9 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 func (p *Plugin) Start() error {
 	p.toStop = new(modifier)
 	p.toStart = new(modifier)
+	p.auth = false
+	p.pending = false
+	p.args = nil
 	return nil
 }
 
@@ -159,10 +162,6 @@ func (p *Plugin) Modify() bool {
 		}
 	}
 	plugins.Start()
-	p.toStart = new(modifier)
-	p.toStop = new(modifier)
-	p.auth = false
-	p.pending = false
 	return effective
 }
 
