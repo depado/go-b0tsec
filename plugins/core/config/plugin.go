@@ -69,10 +69,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 			p.pending = false
 			return
 		}
-		p.processArgs(args)
-		if p.Modify() {
-			ib.Privmsg(to, "Configuration changed")
-		}
+		p.processArgs()
 	})
 
 	p.args = args
@@ -107,8 +104,22 @@ func (p *Plugin) IsStarted() bool {
 	return true
 }
 
-func (p *Plugin) processArgs(args []string) {
-	for _, i := range args {
+func (p *Plugin) processArgs() {
+	switch p.args[0] {
+	case "save":
+		p.Start()
+		return
+	case "admins":
+		p.Start()
+		return
+	case "reset":
+		plugins.Stop()
+		configuration.Load()
+		plugins.Start()
+		return
+	}
+
+	for _, i := range p.args {
 		if strings.HasPrefix(i, "-") && len(i) > 1 {
 			if i[1:3] == "m:" {
 				p.toStop.Middlewares = append(p.toStop.Middlewares, i[3:])
@@ -129,6 +140,7 @@ func (p *Plugin) processArgs(args []string) {
 			}
 		}
 	}
+	p.Modify()
 }
 
 // Modify executes the requested changes

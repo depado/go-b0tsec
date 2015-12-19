@@ -69,6 +69,9 @@ func (m *Middleware) Start() error {
 
 // Stop returns nil when it didnt encounter any error, the error otherwise
 func (m *Middleware) Stop() error {
+	if !m.Started {
+		return nil
+	}
 	var closeErr error
 	if err := HistoryFile.Close(); err != nil {
 		log.Printf("Error closing history file : %s\n", err)
