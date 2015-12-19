@@ -69,7 +69,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 			p.pending = false
 			return
 		}
-		p.processArgs()
+		p.processArgs(ib, to)
 	})
 
 	p.args = args
@@ -104,15 +104,30 @@ func (p *Plugin) IsStarted() bool {
 	return true
 }
 
-func (p *Plugin) processArgs() {
+func (p *Plugin) processArgs(ib *irc.Connection, to string) {
+	cnf := configuration.Config
 	switch p.args[0] {
 	case "save":
 		p.Start()
 		return
 	case "admins":
+		if len(p.args) == 1 {
+			ib.Privmsgf(to, "Admins : %v", cnf.Admins)
+			p.Start()
+			return
+		}
+		for _, i := range p.args[1:] {
+			if strings.HasPrefix(i, "-") {
+				cnf.Admins, _ = utils.RemoveStringInSlice(i[1:], cnf.Admins)
+			} else if !utils.StringInSlice(i, cnf.Admins) {
+				cnf.Admins = append(cnf.Admins, i)
+			}
+		}
 		p.Start()
 		return
 	case "reset":
+		// Can be done in a smarter way, we should copy the slices from configuration
+		// and stop/start only those different from the default config
 		plugins.Stop()
 		configuration.Load()
 		plugins.Start()
