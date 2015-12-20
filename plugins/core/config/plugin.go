@@ -70,7 +70,9 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 			ib.Privmsg(to, "You must identify to nickserv in order to use this plugin.")
 			return
 		}
-		p.Modify()
+		if p.Modify() {
+			ib.Privmsg(to, "Configuration changed")
+		}
 	})
 
 	p.processArgs(args)
@@ -102,7 +104,7 @@ func (p *Plugin) IsStarted() bool {
 
 func (p *Plugin) processArgs(args []string) {
 	for _, i := range args {
-		if strings.HasPrefix(i, "-") {
+		if strings.HasPrefix(i, "-") && len(i) > 1 {
 			if i[1:2] == "m:" {
 				p.ToStop.Middlewares = append(p.ToStop.Middlewares, i[3:])
 			} else if i[1:2] == "p:" {
@@ -125,34 +127,39 @@ func (p *Plugin) processArgs(args []string) {
 }
 
 // Modify executes the requested changes
-func (p *Plugin) Modify() {
+func (p *Plugin) Modify() bool {
+	effective := false
 	cnf := configuration.Config
 	for _, n := range p.ToStart.Plugins {
-		if !utils.StringInSlice(n, cnf.Plugins) {
-			if _, ok := plugins.Plugins[n]; ok {
-				cnf.Plugins = append(cnf.Plugins, n)
-			}
+		if _, ok := plugins.Plugins[n]; ok {
+			cnf.Plugins = append(cnf.Plugins, n)
+			effective = true
 		}
 	}
 	for _, n := range p.ToStart.Middlewares {
-		if !utils.StringInSlice(n, cnf.Middlewares) {
-			if _, ok := plugins.Middlewares[n]; ok {
-				cnf.Middlewares = append(cnf.Middlewares, n)
-			}
+		if _, ok := plugins.Middlewares[n]; ok {
+			cnf.Middlewares = append(cnf.Middlewares, n)
+			effective = true
 		}
 	}
 	var removed bool
 	for _, n := range p.ToStop.Plugins {
 		cnf.Plugins, removed = utils.RemoveStringInSlice(n, cnf.Plugins)
 		if removed {
-			plugins.Plugins[n].Stop()
+			if _, ok := plugins.Plugins[n]; ok {
+				plugins.Plugins[n].Stop()
+				effective = true
+			}
 		}
 	}
 
 	for _, n := range p.ToStop.Middlewares {
 		cnf.Middlewares, removed = utils.RemoveStringInSlice(n, cnf.Middlewares)
 		if removed {
-			plugins.Middlewares[n].Stop()
+			if _, ok := plugins.Middlewares[n]; ok {
+				plugins.Middlewares[n].Stop()
+				effective = true
+			}
 		}
 	}
 	plugins.Start()
@@ -160,6 +167,7 @@ func (p *Plugin) Modify() {
 	p.ToStop = new(modifier)
 	p.Auth = false
 	p.Pending = false
+	return effective
 }
 
 // List returns a pair of strings listing all the plugins/middlewares and their state
