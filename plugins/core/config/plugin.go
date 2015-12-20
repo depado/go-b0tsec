@@ -108,6 +108,11 @@ func (p *Plugin) processArgs(ib *irc.Connection, to string) {
 	cnf := configuration.Config
 	switch p.args[0] {
 	case "save":
+		if len(p.args) == 2 && p.args[1] == "truncate" {
+			configuration.Save(true)
+		} else {
+			configuration.Save(false)
+		}
 		p.Start()
 		return
 	case "admins":

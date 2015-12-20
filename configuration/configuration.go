@@ -47,15 +47,20 @@ func Load() {
 }
 
 // Save saves the actual config to the config path appended by ".new"
-func Save() {
+func Save(truncate bool) {
 	conf, err := yaml.Marshal(&Config)
 	if err != nil {
 		log.Printf("Could not Marshal the configuration to yaml : %s", err.Error)
 		return
 	}
 
-	err = ioutil.WriteFile(*ConfPath, conf, 0644)
+	confPath := *ConfPath
+	if !truncate {
+		confPath += ".new"
+	}
+
+	err = ioutil.WriteFile(confPath, conf, 0644)
 	if err != nil {
-		log.Printf("Error saving config to %s : %s", *ConfPath, err.Error)
+		log.Printf("Error saving config to %s : %s", confPath, err.Error)
 	}
 }
