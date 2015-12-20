@@ -50,7 +50,7 @@ func Load() {
 func Save(truncate bool) {
 	conf, err := yaml.Marshal(&Config)
 	if err != nil {
-		log.Printf("Could not Marshal the configuration to yaml : %s", err.Error)
+		log.Printf("Could not Marshal the configuration to yaml : %v", err)
 		return
 	}
 
@@ -61,6 +61,6 @@ func Save(truncate bool) {
 
 	err = ioutil.WriteFile(confPath, conf, 0644)
 	if err != nil {
-		log.Printf("Error saving config to %s : %s", confPath, err.Error)
+		log.Printf("Error saving config to %s : %v", confPath, err)
 	}
 }
