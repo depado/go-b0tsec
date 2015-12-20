@@ -30,10 +30,9 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 		return
 	}
 	cnf := configuration.Config
-	if !strings.HasPrefix(message, cnf.UserCommandCharacter) {
+	if !strings.HasPrefix(message, cnf.UserCommandCharacter) || len(message) == 1 {
 		return
 	}
-
 	splittedMsg := strings.Fields(message[1:])
 	c := Command{splittedMsg[0], ""}
 	database.BotStorage.Get(bucketName, c.Name, &c)
