@@ -105,18 +105,18 @@ func (p *Plugin) IsStarted() bool {
 func (p *Plugin) processArgs(args []string) {
 	for _, i := range args {
 		if strings.HasPrefix(i, "-") && len(i) > 1 {
-			if i[1:2] == "m:" {
+			if i[1:3] == "m:" {
 				p.ToStop.Middlewares = append(p.ToStop.Middlewares, i[3:])
-			} else if i[1:2] == "p:" {
+			} else if i[1:3] == "p:" {
 				p.ToStop.Plugins = append(p.ToStop.Plugins, i[3:])
 			} else {
 				p.ToStop.Plugins = append(p.ToStop.Plugins, i[1:])
 				p.ToStop.Middlewares = append(p.ToStop.Middlewares, i[1:])
 			}
 		} else if strings.HasPrefix(i, "+") {
-			if i[1:2] == "m:" {
+			if i[1:3] == "m:" {
 				p.ToStart.Middlewares = append(p.ToStart.Middlewares, i[3:])
-			} else if i[1:2] == "p:" {
+			} else if i[1:3] == "p:" {
 				p.ToStart.Plugins = append(p.ToStart.Plugins, i[3:])
 			} else {
 				p.ToStart.Plugins = append(p.ToStart.Plugins, i[1:])
@@ -142,24 +142,18 @@ func (p *Plugin) Modify() bool {
 			effective = true
 		}
 	}
-	var removed bool
 	for _, n := range p.ToStop.Plugins {
-		cnf.Plugins, removed = utils.RemoveStringInSlice(n, cnf.Plugins)
-		if removed {
-			if _, ok := plugins.Plugins[n]; ok {
-				plugins.Plugins[n].Stop()
-				effective = true
-			}
+		if _, ok := plugins.Plugins[n]; ok && utils.StringInSlice(n, cnf.Plugins) {
+			cnf.Plugins, _ = utils.RemoveStringInSlice(n, cnf.Plugins)
+			plugins.Plugins[n].Stop()
+			effective = true
 		}
 	}
-
 	for _, n := range p.ToStop.Middlewares {
-		cnf.Middlewares, removed = utils.RemoveStringInSlice(n, cnf.Middlewares)
-		if removed {
-			if _, ok := plugins.Middlewares[n]; ok {
-				plugins.Middlewares[n].Stop()
-				effective = true
-			}
+		if _, ok := plugins.Middlewares[n]; ok && utils.StringInSlice(n, cnf.Middlewares) {
+			cnf.Middlewares, _ = utils.RemoveStringInSlice(n, cnf.Middlewares)
+			plugins.Middlewares[n].Stop()
+			effective = true
 		}
 	}
 	plugins.Start()
