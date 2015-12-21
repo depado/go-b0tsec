@@ -103,6 +103,10 @@ func (p *Plugin) IsStarted() bool {
 }
 
 func (p *Plugin) processArgs(ib *irc.Connection, to string) {
+	if len(p.args) == 0 {
+		p.Start()
+		return
+	}
 	cnf := configuration.Config
 	switch p.args[0] {
 	case "save":
