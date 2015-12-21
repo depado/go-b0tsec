@@ -38,13 +38,13 @@ plugins:
     - choice
     - translate
     - uc
-    - youtube
+    - yt
 middlewares:
     - logger
     - github
     - markov
     - afk
     - seen
-    - youtube
+    - yt
     - title
     - uc

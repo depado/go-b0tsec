@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	middlewareName = "youtube"
+	middlewareName = "yt"
 )
 
 var ytre = regexp.MustCompile(`(?:https?://)?(?:(?:www\.)?youtube\.com/watch\?.*v=|youtu\.be/)([^&?]{11})`)

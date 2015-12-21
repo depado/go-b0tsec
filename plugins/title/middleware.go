@@ -82,7 +82,7 @@ func IsURLToTreat(host string) bool {
 	m := configuration.Config.Middlewares
 	// If middlewares youtube or github are disabled, we still get the
 	// title of these sites.
-	if (host != "youtu.be" && host != "youtube.com" || !utils.StringInSlice("youtube", m)) &&
+	if (host != "youtu.be" && host != "youtube.com" || !utils.StringInSlice("yt", m)) &&
 		(host != "github.com" || !utils.StringInSlice("github", m)) {
 		return true
 	}
