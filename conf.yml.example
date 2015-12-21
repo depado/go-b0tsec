@@ -37,7 +37,7 @@ plugins:
     - seen
     - choice
     - translate
-    - usercommand
+    - uc
     - youtube
 middlewares:
     - logger
@@ -47,4 +47,4 @@ middlewares:
     - seen
     - youtube
     - title
-    - usercommand
+    - uc

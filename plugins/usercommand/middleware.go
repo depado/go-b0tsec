@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	middlewareName = "usercommand"
+	middlewareName = "uc"
 )
 
 // Middleware is the usercommand middleware.
