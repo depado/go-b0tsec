@@ -44,7 +44,6 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 		ib.Notice(to, "You are not a registered admin.")
 		return
 	}
-
 	if p.pending {
 		ib.Notice(to, "Wait for other operations to complete")
 		return
@@ -75,7 +74,7 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 func (p *Plugin) Help(ib *irc.Connection, from string) {
 	ib.Privmsg(from, "Manages the bot configuration")
 	ib.Privmsg(from, "`!config plugins` will give the state of all plugins and middlewares")
-	ib.Privmsg(from, "`!config plugins (+|-)[p:|m:]pluginName wil enable/disable a plugin")
+	ib.Privmsg(from, "`!config plugins (+|-)[p:|m:]pluginName will enable/disable a plugin")
 	ib.Privmsg(from, "`!config admin` will list the admins")
 	ib.Privmsg(from, "`!config admin [nicks...]` will add a space separated list of nicks to the admins list")
 	ib.Privmsg(from, "`!config save` will save the current configuration to the config file used to load the initial config appended by \".new\"")
@@ -104,16 +103,26 @@ func (p *Plugin) IsStarted() bool {
 
 func (p *Plugin) processArgs(ib *irc.Connection, to string) {
 	cnf := configuration.Config
+	if len(p.args) == 0 {
+		p.Start()
+		return
+	}
 	switch p.args[0] {
 	case "save":
-		p.save()
+		if err := p.save(); err != nil {
+			ib.Privmsg(to, "Error while saving configuration. Consult the logs.")
+		} else {
+			ib.Privmsg(to, "Configuration saved")
+		}
 		p.Start()
 		return
 	case "admins":
 		if len(p.args) == 1 {
 			ib.Privmsgf(to, "Admins : %v", cnf.Admins)
 		} else {
-			p.admins()
+			if p.admins() {
+				ib.Privmsg(to, "Admins configuration changed")
+			}
 		}
 		p.Start()
 		return
@@ -123,6 +132,7 @@ func (p *Plugin) processArgs(ib *irc.Connection, to string) {
 		plugins.Stop()
 		configuration.Load()
 		plugins.Start()
+		ib.Privmsg(to, "Configuration was reseted")
 		return
 	case "plugins":
 		if len(p.args) == 1 {
@@ -132,31 +142,36 @@ func (p *Plugin) processArgs(ib *irc.Connection, to string) {
 			p.Start()
 			return
 		}
-		p.plugins()
+		if p.plugins() {
+			ib.Privmsg(to, "Plugins configuration changed")
+		}
 	}
+	p.Start()
 }
 
-func (p *Plugin) save() {
+func (p *Plugin) save() error {
 	if len(p.args) == 2 && p.args[1] == "truncate" {
-		configuration.Save(true)
-	} else {
-		configuration.Save(false)
+		return configuration.Save(true)
 	}
+	return configuration.Save(false)
 }
 
-func (p *Plugin) admins() {
+func (p *Plugin) admins() bool {
+	var effective = false
 	cnf := configuration.Config
 	for _, i := range p.args[1:] {
 		if strings.HasPrefix(i, "-") {
 			cnf.Admins, _ = utils.RemoveStringInSlice(i[1:], cnf.Admins)
-		} else if !utils.StringInSlice(i, cnf.Admins) {
-			cnf.Admins = append(cnf.Admins, i)
+			effective = true
+		} else if strings.HasPrefix(i, "+") && !utils.StringInSlice(i[1:], cnf.Admins) {
+			cnf.Admins = append(cnf.Admins, i[1:])
+			effective = true
 		}
 	}
+	return effective
 }
 
-func (p *Plugin) plugins() {
-
+func (p *Plugin) plugins() bool {
 	for _, i := range p.args[1:] {
 		if strings.HasPrefix(i, "-") && len(i) > 1 {
 			if i[1:3] == "m:" {
@@ -178,7 +193,7 @@ func (p *Plugin) plugins() {
 			}
 		}
 	}
-	p.modify()
+	return p.modify()
 }
 
 // modify executes the requested changes
