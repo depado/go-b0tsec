@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	pluginCommand = "karma"
-	bucketName    = "karma"
-	mainKey       = "main"
+	command    = "karma"
+	bucketName = "karma"
+	mainKey    = "main"
 )
 
 // Data is the struct that contains the data about the karma intented to be stored somewhere.
@@ -35,15 +35,15 @@ type Pair struct {
 // PairList is a list of Pair
 type PairList []Pair
 
-// Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
-type Plugin struct {
+// Command is the plugin struct. It will be exposed as packagename.Command to keep the API stable and friendly.
+type Command struct {
 	Started bool
 	Data
 	Action map[string]time.Time
 }
 
 func init() {
-	plugins.Plugins[pluginCommand] = new(Plugin)
+	plugins.Commands[command] = new(Command)
 }
 
 func (p PairList) Len() int           { return len(p) }
@@ -73,14 +73,14 @@ func (d Data) Save() error {
 }
 
 // CanModify checks if the args are correct and if the user can modify a karma
-func (p *Plugin) CanModify(from string, args []string) error {
+func (c *Command) CanModify(from string, args []string) error {
 	if len(args) < 2 {
 		return fmt.Errorf("You need to give a nickname to operate on.")
 	}
 	if from == args[1] {
 		return fmt.Errorf("Can't add or remove points to yourself.")
 	}
-	if val, ok := p.Action[from]; ok {
+	if val, ok := c.Action[from]; ok {
 		if time.Since(val) < 1*time.Minute {
 			return fmt.Errorf("Please wait 1 minute between each karma operation.")
 		}
@@ -89,33 +89,33 @@ func (p *Plugin) CanModify(from string, args []string) error {
 }
 
 // ModifyKarma modifies the karma value of a user and send msg to notify the new count
-func (p *Plugin) ModifyKarma(ib *irc.Connection, from string, to string, args []string) {
-	if err := p.CanModify(from, args); err != nil {
+func (c *Command) ModifyKarma(ib *irc.Connection, from string, to string, args []string) {
+	if err := c.CanModify(from, args); err != nil {
 		ib.Notice(from, err.Error())
 		return
 	}
-	p.Action[from] = time.Now()
-	c := 0
-	if val, ok := p.Karma[args[1]]; ok {
-		c = val
+	c.Action[from] = time.Now()
+	current := 0
+	if val, ok := c.Karma[args[1]]; ok {
+		current = val
 	}
 	if args[0] == ">" {
-		p.Karma[args[1]] = c + 1
-		ib.Privmsgf(configuration.Config.Channel, "Someone gave a karma point to %v, total %v", args[1], c+1)
+		c.Karma[args[1]] = current + 1
+		ib.Privmsgf(configuration.Config.Channel, "Someone gave a karma point to %v, total %v", args[1], current+1)
 	} else {
-		p.Karma[args[1]] = c - 1
-		ib.Privmsgf(configuration.Config.Channel, "Someone took a karma point from %v, total %v", args[1], c-1)
+		c.Karma[args[1]] = current - 1
+		ib.Privmsgf(configuration.Config.Channel, "Someone took a karma point from %v, total %v", args[1], current-1)
 	}
 	if len(args) > 2 {
 		ib.Privmsgf(configuration.Config.Channel, "Reason : %s", strings.Join(args[2:], " "))
 	}
-	if err := p.Data.Save(); err != nil {
+	if err := c.Data.Save(); err != nil {
 		log.Println(err)
 	}
 }
 
 // GetKarma gets karma value of all
-func (p *Plugin) GetKarma(ib *irc.Connection, from string, to string, nicks []string) {
+func (c *Command) GetKarma(ib *irc.Connection, from string, to string, nicks []string) {
 	if len(nicks) < 1 {
 		ib.Notice(from, "You need to give a nickname to operate on.")
 		return
@@ -123,7 +123,7 @@ func (p *Plugin) GetKarma(ib *irc.Connection, from string, to string, nicks []st
 	nrec := false
 	pl := make(PairList, 0)
 	for _, n := range nicks {
-		if val, ok := p.Karma[n]; ok {
+		if val, ok := c.Karma[n]; ok {
 			pl = append(pl, Pair{n, val})
 		} else {
 			nrec = true
@@ -139,8 +139,8 @@ func (p *Plugin) GetKarma(ib *irc.Connection, from string, to string, nicks []st
 }
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
-func (p *Plugin) Help(ib *irc.Connection, from string) {
-	if !p.Started {
+func (c *Command) Help(ib *irc.Connection, from string) {
+	if !c.Started {
 		return
 	}
 	ib.Privmsg(from, "Allows to add/remove/see karma points to/from/of a person.")
@@ -150,43 +150,43 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 }
 
 // Get is the actual call to your plugin.
-func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
-	if !p.Started {
+func (c *Command) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !c.Started {
 		return
 	}
 	if len(args) > 0 {
 		switch args[0] {
 		case "<", ">":
-			p.ModifyKarma(ib, from, to, args)
+			c.ModifyKarma(ib, from, to, args)
 			return
 		case "=":
-			p.GetKarma(ib, from, to, args[1:])
+			c.GetKarma(ib, from, to, args[1:])
 			return
 		}
 	}
 }
 
 // Start starts the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Start() error {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+func (c *Command) Start() error {
+	if utils.StringInSlice(command, configuration.Config.Commands) {
 		if err := database.BotStorage.CreateBucket(bucketName); err != nil {
 			log.Fatalf("Error while creating bucket for the Karma plugin : %s", err)
 		}
 		d := Data{make(map[string]int)}
 		database.BotStorage.Get(bucketName, mainKey, &d)
 
-		plugins.Plugins[pluginCommand] = &Plugin{true, d, make(map[string]time.Time)}
+		plugins.Commands[command] = &Command{true, d, make(map[string]time.Time)}
 	}
 	return nil
 }
 
 // Stop stops the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Stop() error {
-	p.Started = false
+func (c *Command) Stop() error {
+	c.Started = false
 	return nil
 }
 
 // IsStarted returns the state of the plugin
-func (p *Plugin) IsStarted() bool {
-	return p.Started
+func (c *Command) IsStarted() bool {
+	return c.Started
 }

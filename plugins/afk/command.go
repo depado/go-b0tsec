@@ -11,21 +11,21 @@ import (
 )
 
 const (
-	pluginCommand = "afk"
+	command = "afk"
 )
 
-// Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
-type Plugin struct {
+// Command is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
+type Command struct {
 	Started bool
 }
 
 func init() {
-	plugins.Plugins[pluginCommand] = new(Plugin)
+	plugins.Commands[command] = new(Command)
 }
 
 // Help must send some help about what the command actually does and how to call it if there are any optional arguments.
-func (p *Plugin) Help(ib *irc.Connection, from string) {
-	if !p.Started {
+func (c *Command) Help(ib *irc.Connection, from string) {
+	if !c.Started {
 		return
 	}
 	ib.Privmsg(from, "Tell the world you're afk, for a reason. Or not.")
@@ -33,8 +33,8 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 }
 
 // Get is the actual call to your plugin.
-func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
-	if !p.Started {
+func (c *Command) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !c.Started {
 		return
 	}
 	reason := ""
@@ -50,20 +50,20 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 }
 
 // Start starts the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Start() error {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
-		p.Started = true
+func (c *Command) Start() error {
+	if utils.StringInSlice(command, configuration.Config.Commands) {
+		c.Started = true
 	}
 	return nil
 }
 
 // Stop stops the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Stop() error {
-	p.Started = false
+func (c *Command) Stop() error {
+	c.Started = false
 	return nil
 }
 
 // IsStarted returns the state of the plugin
-func (p *Plugin) IsStarted() bool {
-	return p.Started
+func (c *Command) IsStarted() bool {
+	return c.Started
 }

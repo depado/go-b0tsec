@@ -19,18 +19,18 @@ const (
 	pluginCommand = "yt"
 )
 
-// Plugin is the plugin struct. It will be exposed as packagename.Plugin to keep the API stable and friendly.
-type Plugin struct {
+// Command is the plugin struct. It will be exposed as packagename.Command to keep the API stable and friendly.
+type Command struct {
 	Started bool
 }
 
 func init() {
-	plugins.Plugins[pluginCommand] = new(Plugin)
+	plugins.Commands[pluginCommand] = new(Command)
 }
 
 // Help shows a help message for this command.
-func (p *Plugin) Help(ib *irc.Connection, from string) {
-	if !p.Started {
+func (c *Command) Help(ib *irc.Connection, from string) {
+	if !c.Started {
 		return
 	}
 	ib.Privmsg(from, "Search directly on YouTube.")
@@ -38,8 +38,8 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 }
 
 // Get actually sends the data
-func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
-	if !p.Started {
+func (c *Command) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !c.Started {
 		return
 	}
 	if len(args) > 0 {
@@ -76,20 +76,20 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 }
 
 // Start starts the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Start() error {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
-		p.Started = true
+func (c *Command) Start() error {
+	if utils.StringInSlice(pluginCommand, configuration.Config.Commands) {
+		c.Started = true
 	}
 	return nil
 }
 
 // Stop stops the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Stop() error {
-	p.Started = false
+func (c *Command) Stop() error {
+	c.Started = false
 	return nil
 }
 
 // IsStarted returns the state of the plugin
-func (p *Plugin) IsStarted() bool {
-	return p.Started
+func (c *Command) IsStarted() bool {
+	return c.Started
 }

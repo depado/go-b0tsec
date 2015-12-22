@@ -34,22 +34,22 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 		return
 	}
 	splittedMsg := strings.Fields(message[1:])
-	c := Command{splittedMsg[0], ""}
-	database.BotStorage.Get(bucketName, c.Name, &c)
+	uc := UserCommand{splittedMsg[0], ""}
+	database.BotStorage.Get(bucketName, uc.Name, &uc)
 
-	if strings.HasPrefix(c.Value, cnf.CommandCharacter) {
-		if len(c.Value) > 1 {
-			splittedCommand := strings.Fields(c.Value[1:])
+	if strings.HasPrefix(uc.Value, cnf.CommandCharacter) {
+		if len(uc.Value) > 1 {
+			splittedCommand := strings.Fields(uc.Value[1:])
 			command := splittedCommand[0]
 			args := append(splittedCommand[1:], splittedMsg[1:]...)
-			if p, ok := plugins.Plugins[command]; ok {
+			if p, ok := plugins.Commands[command]; ok {
 				p.Get(ib, from, to, args)
 				return
 			}
 		}
 	}
 	var msg string
-	msg = c.Value
+	msg = uc.Value
 	if len(splittedMsg) > 1 {
 		msg += " " + strings.Join(splittedMsg[1:], " ")
 	}

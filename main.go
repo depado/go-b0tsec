@@ -69,7 +69,7 @@ func main() {
 				splitted := strings.Fields(m[1:])
 				command := splitted[0]
 				args := splitted[1:]
-				if p, ok := plugins.Plugins[command]; ok {
+				if p, ok := plugins.Commands[command]; ok {
 					p.Get(ib, from, to, args)
 				}
 			}

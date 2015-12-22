@@ -17,7 +17,7 @@ type Configuration struct {
 	InsecureTLS          bool     `yaml:"insecure_tls"`
 	CommandCharacter     string   `yaml:"command_character"`
 	Middlewares          []string `yaml:"middlewares"`
-	Plugins              []string `yaml:"plugins"`
+	Commands             []string `yaml:"commands"`
 	Admins               []string `yaml:"admins"`
 	GoogleAPIKey         string   `yaml:"google_api_key"`
 	YandexTrnslKey       string   `yaml:"yandex_trnsl_key"`
@@ -42,7 +42,7 @@ func Load() {
 	if err != nil {
 		log.Fatalf("Error parsing YAML :  %v", err)
 	}
-	sort.Strings(Config.Plugins)
+	sort.Strings(Config.Commands)
 	sort.Strings(Config.Middlewares)
 }
 

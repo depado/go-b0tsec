@@ -11,21 +11,21 @@ import (
 )
 
 const (
-	pluginCommand = "uc"
+	command = "uc"
 )
 
 func init() {
-	plugins.Plugins[pluginCommand] = new(Plugin)
+	plugins.Commands[command] = new(Command)
 }
 
-// Plugin is the usercommand.Plugin type
-type Plugin struct {
+// Command is the usercommand.Command type
+type Command struct {
 	Started bool
 }
 
 // Help displays the help for the plugin
-func (p *Plugin) Help(ib *irc.Connection, from string) {
-	if !p.Started {
+func (c *Command) Help(ib *irc.Connection, from string) {
+	if !c.Started {
 		return
 	}
 	ib.Privmsg(from, "This command allows user to create, list and delete their own commands")
@@ -41,8 +41,8 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 }
 
 // Get actually acts
-func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
-	if !p.Started {
+func (c *Command) Get(ib *irc.Connection, from string, to string, args []string) {
+	if !c.Started {
 		return
 	}
 	if to == configuration.Config.BotName {
@@ -50,22 +50,22 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 	}
 	if len(args) > 1 {
 		// Setting a command
-		c := Command{Name: args[0], Value: strings.Join(args[1:], " ")}
-		if err := c.Save(); err != nil {
+		uc := UserCommand{Name: args[0], Value: strings.Join(args[1:], " ")}
+		if err := uc.Save(); err != nil {
 			log.Println("Could not save to Bolt : ", err)
 			return
 		}
-		ib.Privmsgf(to, "Command %s added", c.Name)
+		ib.Privmsgf(to, "Command %s added", uc.Name)
 		return
 	}
 	if len(args) == 1 {
 		// Removes the command
-		c := Command{Name: args[0]}
-		if err := c.Delete(); err != nil {
+		uc := UserCommand{Name: args[0]}
+		if err := uc.Delete(); err != nil {
 			log.Println("Could not delete Bolt data : ", err)
 			return
 		}
-		ib.Privmsgf(to, "Command %s deleted", c.Name)
+		ib.Privmsgf(to, "Command %s deleted", uc.Name)
 		return
 	}
 	// List saved commands
@@ -81,21 +81,21 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 }
 
 // Start starts the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Start() error {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
+func (c *Command) Start() error {
+	if utils.StringInSlice(command, configuration.Config.Commands) {
 		CreateBucket()
-		p.Started = true
+		c.Started = true
 	}
 	return nil
 }
 
 // Stop stops the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Stop() error {
-	p.Started = false
+func (c *Command) Stop() error {
+	c.Started = false
 	return nil
 }
 
 // IsStarted returns the state of the plugin
-func (p *Plugin) IsStarted() bool {
-	return p.Started
+func (c *Command) IsStarted() bool {
+	return c.Started
 }

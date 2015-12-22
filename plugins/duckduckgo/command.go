@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	apiURL        = "https://api.duckduckgo.com/?q=%s&format=json"
-	pluginCommand = "ddg"
+	apiURL  = "https://api.duckduckgo.com/?q=%s&format=json"
+	command = "ddg"
 )
 
 type message struct {
@@ -44,18 +44,18 @@ type relatedTopic struct {
 	Text     string
 }
 
-// Plugin is the duckduckgo plugin.
-type Plugin struct {
+// Command is the duckduckgo plugin.
+type Command struct {
 	Started bool
 }
 
 func init() {
-	plugins.Plugins[pluginCommand] = new(Plugin)
+	plugins.Commands[command] = new(Command)
 }
 
 // Help provides some help on the plugin
-func (p *Plugin) Help(ib *irc.Connection, from string) {
-	if !p.Started {
+func (c *Command) Help(ib *irc.Connection, from string) {
+	if !c.Started {
 		return
 	}
 	ib.Privmsg(from, "Search directly on DuckDuckGo.")
@@ -63,12 +63,12 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 }
 
 // Get actually sends the data to the channel
-func (p *Plugin) Get(ircbot *irc.Connection, from string, to string, args []string) {
-	if !p.Started {
+func (c *Command) Get(ircbot *irc.Connection, from string, to string, args []string) {
+	if !c.Started {
 		return
 	}
 	if len(args) > 0 {
-		res, err := p.fetch(strings.Join(args, " "))
+		res, err := c.fetch(strings.Join(args, " "))
 		if err != nil || res == "" {
 			if err != nil {
 				log.Println(err)
@@ -80,25 +80,25 @@ func (p *Plugin) Get(ircbot *irc.Connection, from string, to string, args []stri
 }
 
 // Start starts the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Start() error {
-	if utils.StringInSlice(pluginCommand, configuration.Config.Plugins) {
-		p.Started = true
+func (c *Command) Start() error {
+	if utils.StringInSlice(command, configuration.Config.Commands) {
+		c.Started = true
 	}
 	return nil
 }
 
 // Stop stops the plugin and returns any occured error, nil otherwise
-func (p *Plugin) Stop() error {
-	p.Started = false
+func (c *Command) Stop() error {
+	c.Started = false
 	return nil
 }
 
 // IsStarted returns the state of the plugin
-func (p *Plugin) IsStarted() bool {
-	return p.Started
+func (c *Command) IsStarted() bool {
+	return c.Started
 }
 
-func (p *Plugin) fetch(query string) (string, error) {
+func (c *Command) fetch(query string) (string, error) {
 	var t message
 	url := utils.EncodeURL(apiURL, query)
 	if err := utils.FetchURL(url, &t); err != nil {

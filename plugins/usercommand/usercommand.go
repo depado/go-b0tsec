@@ -9,8 +9,8 @@ import (
 
 const bucketName = "usercommand"
 
-// Command represents a single command.
-type Command struct {
+// UserCommand represents a single command.
+type UserCommand struct {
 	Name  string
 	Value string
 }
@@ -23,8 +23,8 @@ func CreateBucket() {
 }
 
 // Encode encodes a chain to json.
-func (c *Command) Encode() ([]byte, error) {
-	enc, err := json.Marshal(c)
+func (uc *UserCommand) Encode() ([]byte, error) {
+	enc, err := json.Marshal(uc)
 	if err != nil {
 		return nil, err
 	}
@@ -32,21 +32,21 @@ func (c *Command) Encode() ([]byte, error) {
 }
 
 // Decode decodes json to Command
-func (c *Command) Decode(data []byte) error {
-	if err := json.Unmarshal(data, c); err != nil {
+func (uc *UserCommand) Decode(data []byte) error {
+	if err := json.Unmarshal(data, uc); err != nil {
 		return err
 	}
 	return nil
 }
 
 // Save saves the Data
-func (c Command) Save() error {
-	return database.BotStorage.Save(bucketName, c.Name, &c)
+func (uc UserCommand) Save() error {
+	return database.BotStorage.Save(bucketName, uc.Name, &uc)
 }
 
 // Delete deletes a command
-func (c Command) Delete() error {
-	return database.BotStorage.Delete(bucketName, c.Name)
+func (uc UserCommand) Delete() error {
+	return database.BotStorage.Delete(bucketName, uc.Name)
 }
 
 // List returns a string array of all the keys in the bucket

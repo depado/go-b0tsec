@@ -6,8 +6,8 @@ import (
 	"github.com/thoj/go-ircevent"
 )
 
-// Plugin represents a single plugin. The Get method is use to send things.
-type Plugin interface {
+// Command represents a single plugin. The Get method is use to send things.
+type Command interface {
 	Get(*irc.Connection, string, string, []string)
 	Help(*irc.Connection, string)
 	Start() error
@@ -24,15 +24,15 @@ type Middleware interface {
 }
 
 // Plugins is the map structure of all configured plugins
-var Plugins = map[string]Plugin{}
+var Commands = map[string]Command{}
 
 // Middlewares is the slice of all configured middlewares Get() func
 var Middlewares = map[string]Middleware{}
 
-// ListPlugins returns a list of the started plugins
-func ListPlugins() []string {
+// ListCommands returns a list of the started plugins
+func ListCommands() []string {
 	var list []string
-	for k, p := range Plugins {
+	for k, p := range Commands {
 		if p.IsStarted() {
 			list = append(list, k)
 		}
@@ -40,7 +40,7 @@ func ListPlugins() []string {
 	return list
 }
 
-// Stop calls the Stop method of each registered middleware
+// Stop calls the Stop method of each registered plugins
 func Stop() {
 	for _, k := range Middlewares {
 		if err := k.Stop(); err != nil {
@@ -48,21 +48,21 @@ func Stop() {
 		}
 	}
 
-	for _, k := range Plugins {
+	for _, k := range Commands {
 		if err := k.Stop(); err != nil {
 			log.Printf("Error closing plugins : %v", err)
 		}
 	}
 }
 
-// Start calls the Start method of each registered middleware
+// Start calls the Start method of each registered plugin
 func Start() {
 	for _, k := range Middlewares {
 		if err := k.Start(); err != nil {
 			log.Printf("Error starting middlewares : %v", err)
 		}
 	}
-	for p, k := range Plugins {
+	for p, k := range Commands {
 		if err := k.Start(); err != nil {
 			log.Printf("Error starting plugin %s : %s\n", p, err)
 		}

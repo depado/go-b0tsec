@@ -13,16 +13,16 @@ import (
 )
 
 const (
-	pluginName = "config"
+	command = "config"
 )
 
 type modifier struct {
-	Plugins     []string
+	Commands    []string
 	Middlewares []string
 }
 
-// Plugin is the help plugin
-type Plugin struct {
+// Command is the help plugin
+type Command struct {
 	pending bool
 	auth    bool
 	toStart *modifier
@@ -32,11 +32,11 @@ type Plugin struct {
 
 // init initializes all the plugins and middlewares.
 func init() {
-	plugins.Plugins[pluginName] = new(Plugin)
+	plugins.Commands[command] = new(Command)
 }
 
 // Get actually executes the command.
-func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) {
+func (c *Command) Get(ib *irc.Connection, from string, to string, args []string) {
 	if to == configuration.Config.BotName {
 		to = from
 	}
@@ -44,34 +44,34 @@ func (p *Plugin) Get(ib *irc.Connection, from string, to string, args []string) 
 		ib.Notice(to, "You are not a registered admin.")
 		return
 	}
-	if p.pending {
+	if c.pending {
 		ib.Notice(to, "Wait for other operations to complete")
 		return
 	}
-	p.pending = true
+	c.pending = true
 
 	ib.AddCallback("330", func(e *irc.Event) {
-		p.auth = true
+		c.auth = true
 		ib.ClearCallback("330")
 	})
 	ib.AddCallback("318", func(e *irc.Event) {
 		ib.ClearCallback("318")
 		time.Sleep(1 * time.Second)
-		if !p.auth {
+		if !c.auth {
 			ib.Notice(to, "You must identify to nickserv in order to use this plugin.")
-			p.pending = false
+			c.pending = false
 			return
 		}
-		p.processArgs(ib, to)
+		c.processArgs(ib, to)
 	})
 
-	p.args = args
+	c.args = args
 
 	ib.Whois(from)
 }
 
 // Help shows the help for the plugin.
-func (p *Plugin) Help(ib *irc.Connection, from string) {
+func (c *Command) Help(ib *irc.Connection, from string) {
 	ib.Privmsg(from, "Manages the bot configuration")
 	ib.Privmsg(from, "`!config plugins` will give the state of all plugins and middlewares")
 	ib.Privmsg(from, "`!config plugins (+|-)[p:|m:]pluginName will enable/disable a plugin")
@@ -82,49 +82,49 @@ func (p *Plugin) Help(ib *irc.Connection, from string) {
 }
 
 // Start returns nil since it is a core plugin
-func (p *Plugin) Start() error {
-	p.toStop = new(modifier)
-	p.toStart = new(modifier)
-	p.auth = false
-	p.pending = false
-	p.args = nil
+func (c *Command) Start() error {
+	c.toStop = new(modifier)
+	c.toStart = new(modifier)
+	c.auth = false
+	c.pending = false
+	c.args = nil
 	return nil
 }
 
 // Stop returns nil since it is a core plugin
-func (p *Plugin) Stop() error {
+func (c *Command) Stop() error {
 	return nil
 }
 
 // IsStarted returns always true since it is a core plugin
-func (p *Plugin) IsStarted() bool {
+func (c *Command) IsStarted() bool {
 	return true
 }
 
-func (p *Plugin) processArgs(ib *irc.Connection, to string) {
+func (c *Command) processArgs(ib *irc.Connection, to string) {
 	cnf := configuration.Config
-	if len(p.args) == 0 {
-		p.Start()
+	if len(c.args) == 0 {
+		c.Start()
 		return
 	}
-	switch p.args[0] {
+	switch c.args[0] {
 	case "save":
-		if err := p.save(); err != nil {
+		if err := c.save(); err != nil {
 			ib.Privmsg(to, "Error while saving configuration. Consult the logs.")
 		} else {
 			ib.Privmsg(to, "Configuration saved")
 		}
-		p.Start()
+		c.Start()
 		return
 	case "admins":
-		if len(p.args) == 1 {
+		if len(c.args) == 1 {
 			ib.Privmsgf(to, "Admins : %v", cnf.Admins)
 		} else {
-			if p.admins() {
+			if c.admins() {
 				ib.Privmsg(to, "Admins configuration changed")
 			}
 		}
-		p.Start()
+		c.Start()
 		return
 	case "reset":
 		// Can be done in a smarter way, we should copy the slices from configuration
@@ -135,31 +135,31 @@ func (p *Plugin) processArgs(ib *irc.Connection, to string) {
 		ib.Privmsg(to, "Configuration was reseted")
 		return
 	case "plugins":
-		if len(p.args) == 1 {
+		if len(c.args) == 1 {
 			list := list()
-			ib.Privmsgf(to, "Plugins     : %s", list[0])
+			ib.Privmsgf(to, "Commands     : %s", list[0])
 			ib.Privmsgf(to, "Middlewares : %s", list[1])
-			p.Start()
+			c.Start()
 			return
 		}
-		if p.plugins() {
-			ib.Privmsg(to, "Plugins configuration changed")
+		if c.plugins() {
+			ib.Privmsg(to, "Commands configuration changed")
 		}
 	}
-	p.Start()
+	c.Start()
 }
 
-func (p *Plugin) save() error {
-	if len(p.args) == 2 && p.args[1] == "truncate" {
+func (c *Command) save() error {
+	if len(c.args) == 2 && c.args[1] == "truncate" {
 		return configuration.Save(true)
 	}
 	return configuration.Save(false)
 }
 
-func (p *Plugin) admins() bool {
+func (c *Command) admins() bool {
 	var effective = false
 	cnf := configuration.Config
-	for _, i := range p.args[1:] {
+	for _, i := range c.args[1:] {
 		if strings.HasPrefix(i, "-") {
 			cnf.Admins, _ = utils.RemoveStringInSlice(i[1:], cnf.Admins)
 			effective = true
@@ -171,55 +171,55 @@ func (p *Plugin) admins() bool {
 	return effective
 }
 
-func (p *Plugin) plugins() bool {
-	for _, i := range p.args[1:] {
+func (c *Command) plugins() bool {
+	for _, i := range c.args[1:] {
 		if strings.HasPrefix(i, "-") && len(i) > 1 {
 			if i[1:3] == "m:" {
-				p.toStop.Middlewares = append(p.toStop.Middlewares, i[3:])
+				c.toStop.Middlewares = append(c.toStop.Middlewares, i[3:])
 			} else if i[1:3] == "p:" {
-				p.toStop.Plugins = append(p.toStop.Plugins, i[3:])
+				c.toStop.Commands = append(c.toStop.Commands, i[3:])
 			} else {
-				p.toStop.Plugins = append(p.toStop.Plugins, i[1:])
-				p.toStop.Middlewares = append(p.toStop.Middlewares, i[1:])
+				c.toStop.Commands = append(c.toStop.Commands, i[1:])
+				c.toStop.Middlewares = append(c.toStop.Middlewares, i[1:])
 			}
 		} else if strings.HasPrefix(i, "+") {
 			if i[1:3] == "m:" {
-				p.toStart.Middlewares = append(p.toStart.Middlewares, i[3:])
+				c.toStart.Middlewares = append(c.toStart.Middlewares, i[3:])
 			} else if i[1:3] == "p:" {
-				p.toStart.Plugins = append(p.toStart.Plugins, i[3:])
+				c.toStart.Commands = append(c.toStart.Commands, i[3:])
 			} else {
-				p.toStart.Plugins = append(p.toStart.Plugins, i[1:])
-				p.toStart.Middlewares = append(p.toStart.Middlewares, i[1:])
+				c.toStart.Commands = append(c.toStart.Commands, i[1:])
+				c.toStart.Middlewares = append(c.toStart.Middlewares, i[1:])
 			}
 		}
 	}
-	return p.modify()
+	return c.modify()
 }
 
 // modify executes the requested changes
-func (p *Plugin) modify() bool {
+func (c *Command) modify() bool {
 	effective := false
 	cnf := configuration.Config
-	for _, n := range p.toStart.Plugins {
-		if _, ok := plugins.Plugins[n]; ok {
-			cnf.Plugins = append(cnf.Plugins, n)
+	for _, n := range c.toStart.Commands {
+		if _, ok := plugins.Commands[n]; ok {
+			cnf.Commands = append(cnf.Commands, n)
 			effective = true
 		}
 	}
-	for _, n := range p.toStart.Middlewares {
+	for _, n := range c.toStart.Middlewares {
 		if _, ok := plugins.Middlewares[n]; ok {
 			cnf.Middlewares = append(cnf.Middlewares, n)
 			effective = true
 		}
 	}
-	for _, n := range p.toStop.Plugins {
-		if _, ok := plugins.Plugins[n]; ok && utils.StringInSlice(n, cnf.Plugins) {
-			cnf.Plugins, _ = utils.RemoveStringInSlice(n, cnf.Plugins)
-			plugins.Plugins[n].Stop()
+	for _, n := range c.toStop.Commands {
+		if _, ok := plugins.Commands[n]; ok && utils.StringInSlice(n, cnf.Commands) {
+			cnf.Commands, _ = utils.RemoveStringInSlice(n, cnf.Commands)
+			plugins.Commands[n].Stop()
 			effective = true
 		}
 	}
-	for _, n := range p.toStop.Middlewares {
+	for _, n := range c.toStop.Middlewares {
 		if _, ok := plugins.Middlewares[n]; ok && utils.StringInSlice(n, cnf.Middlewares) {
 			cnf.Middlewares, _ = utils.RemoveStringInSlice(n, cnf.Middlewares)
 			plugins.Middlewares[n].Stop()
@@ -233,15 +233,15 @@ func (p *Plugin) modify() bool {
 // list returns a pair of strings listing all the plugins/middlewares and their state
 func list() [2]string {
 	var list [2]string
-	for k, p := range plugins.Plugins {
-		if p.IsStarted() {
+	for k, c := range plugins.Commands {
+		if c.IsStarted() {
 			list[0] += fmt.Sprintf(" \x0303+%s\x03", k)
 		} else {
 			list[0] += fmt.Sprintf(" \x0304-%s\x0F\x03", k)
 		}
 	}
-	for k, p := range plugins.Middlewares {
-		if p.IsStarted() {
+	for k, c := range plugins.Middlewares {
+		if c.IsStarted() {
 			list[1] += fmt.Sprintf(" \x0303+%v\x03", k)
 		} else {
 			list[1] += fmt.Sprintf(" \x0304-%v\x0F\x03", k)
