@@ -53,7 +53,7 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 	}
 }
 
-// Start starts the middleware and returns any occured error, nil otherwise
+// Start starts the middleware and returns any occurred error, nil otherwise
 func (m *Middleware) Start() error {
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
 		MainChain = NewChain("main")
@@ -67,7 +67,7 @@ func (m *Middleware) Start() error {
 	return nil
 }
 
-// Stop stops the middleware and returns any occured error, nil otherwise
+// Stop stops the middleware and returns any occurred error, nil otherwise
 func (m *Middleware) Stop() error {
 	MainChain = nil
 	m.Started = false

@@ -127,7 +127,7 @@ func (c *Command) fetch(query string) error {
 	return nil
 }
 
-// Start starts the plugin and returns any occured error, nil otherwise
+// Start starts the plugin and returns any occurred error, nil otherwise
 func (c *Command) Start() error {
 	if utils.StringInSlice(command, configuration.Config.Commands) {
 		c.Started = true
@@ -135,7 +135,7 @@ func (c *Command) Start() error {
 	return nil
 }
 
-// Stop stops the plugin and returns any occured error, nil otherwise
+// Stop stops the plugin and returns any occurred error, nil otherwise
 func (c *Command) Stop() error {
 	c.Started = false
 	return nil

@@ -21,7 +21,7 @@ const (
 	mainKey    = "main"
 )
 
-// Data is the struct that contains the data about the karma intented to be stored somewhere.
+// Data is the struct that contains the data about the karma intended to be stored somewhere.
 type Data struct {
 	Karma map[string]int
 }
@@ -166,7 +166,7 @@ func (c *Command) Get(ib *irc.Connection, from string, to string, args []string)
 	}
 }
 
-// Start starts the plugin and returns any occured error, nil otherwise
+// Start starts the plugin and returns any occurred error, nil otherwise
 func (c *Command) Start() error {
 	if utils.StringInSlice(command, configuration.Config.Commands) {
 		if err := database.BotStorage.CreateBucket(bucketName); err != nil {
@@ -180,7 +180,7 @@ func (c *Command) Start() error {
 	return nil
 }
 
-// Stop stops the plugin and returns any occured error, nil otherwise
+// Stop stops the plugin and returns any occurred error, nil otherwise
 func (c *Command) Stop() error {
 	c.Started = false
 	return nil
