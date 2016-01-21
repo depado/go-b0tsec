@@ -1,6 +1,7 @@
 package usercommand
 
 import (
+	"log"
 	"strings"
 
 	"github.com/depado/go-b0tsec/configuration"
@@ -33,9 +34,14 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 	if !strings.HasPrefix(message, cnf.UserCommandCharacter) || len(message) == 1 {
 		return
 	}
+
 	splittedMsg := strings.Fields(message[1:])
 	uc := UserCommand{splittedMsg[0], ""}
-	database.BotStorage.Get(bucketName, uc.Name, &uc)
+
+	if err := database.BotStorage.Get(bucketName, uc.Name, &uc); err != nil {
+		log.Println(err)
+		return
+	}
 
 	if strings.HasPrefix(uc.Value, cnf.CommandCharacter) {
 		if len(uc.Value) > 1 {
@@ -56,7 +62,7 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 	ib.Privmsg(to, msg)
 }
 
-// Start starts the middleware and returns any occured error, nil otherwise
+// Start starts the middleware and returns any occurred error, nil otherwise
 func (m *Middleware) Start() error {
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
 		CreateBucket()
@@ -65,7 +71,7 @@ func (m *Middleware) Start() error {
 	return nil
 }
 
-// Stop stops the middleware and returns any occured error, nil otherwise
+// Stop stops the middleware and returns any occurred error, nil otherwise
 func (m *Middleware) Stop() error {
 	m.Started = false
 	return nil

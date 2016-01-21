@@ -23,7 +23,7 @@ type Middleware interface {
 	IsStarted() bool
 }
 
-// Plugins is the map structure of all configured plugins
+// Commands is the map structure of all configured plugins
 var Commands = map[string]Command{}
 
 // Middlewares is the slice of all configured middlewares Get() func

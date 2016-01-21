@@ -79,7 +79,7 @@ func (c *Command) Get(ircbot *irc.Connection, from string, to string, args []str
 	}
 }
 
-// Start starts the plugin and returns any occured error, nil otherwise
+// Start starts the plugin and returns any occurred error, nil otherwise
 func (c *Command) Start() error {
 	if utils.StringInSlice(command, configuration.Config.Commands) {
 		c.Started = true
@@ -87,7 +87,7 @@ func (c *Command) Start() error {
 	return nil
 }
 
-// Stop stops the plugin and returns any occured error, nil otherwise
+// Stop stops the plugin and returns any occurred error, nil otherwise
 func (c *Command) Stop() error {
 	c.Started = false
 	return nil

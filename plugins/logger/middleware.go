@@ -56,7 +56,7 @@ func (m *Middleware) Get(ib *irc.Connection, from string, to string, message str
 	}
 }
 
-// Start starts the middleware and returns any occured error, nil otherwise
+// Start starts the middleware and returns any occurred error, nil otherwise
 func (m *Middleware) Start() error {
 	if utils.StringInSlice(middlewareName, configuration.Config.Middlewares) {
 		if err := InitLoggers(); err != nil {
@@ -67,7 +67,7 @@ func (m *Middleware) Start() error {
 	return nil
 }
 
-// Stop returns nil when it didnt encounter any error, the error otherwise
+// Stop returns nil when it didn’t encounter any error, the error otherwise
 func (m *Middleware) Stop() error {
 	if !m.Started {
 		return nil
@@ -75,11 +75,11 @@ func (m *Middleware) Stop() error {
 	var closeErr error
 	if err := HistoryFile.Close(); err != nil {
 		log.Printf("Error closing history file : %s\n", err)
-		closeErr = fmt.Errorf("error occured while closing loggers’ files")
+		closeErr = fmt.Errorf("error occurred while closing loggers’ files")
 	}
 	if err := LinkFile.Close(); err != nil {
 		log.Printf("closing links file : %s\n", err)
-		closeErr = fmt.Errorf("error occured while closing loggers’ files")
+		closeErr = fmt.Errorf("error occurred while closing loggers’ files")
 	}
 
 	if closeErr != nil {
