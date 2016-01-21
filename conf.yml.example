@@ -22,10 +22,10 @@ yandex_trnsl_key: "SomeAPIKeyForYandexTranslationServiceIPresume"
 # ------------------------------
 user_command_character: "." # Set "." as prefix usercommand character
 
-# ---------------------------
-# | Plugins and middlewares |
-# ---------------------------
-plugins:
+# ----------------------------
+# | Commands and middlewares |
+# ----------------------------
+commands:
     - ud
     - ddg
     - anon
