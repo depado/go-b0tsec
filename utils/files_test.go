@@ -33,7 +33,6 @@ func TestHumanReadableSize(t *testing.T) {
 		2048:  "2.00KB",
 		10000: "9.77KB",
 		10e6:  "9.54MB",
-		10e10: "93.13GB",
 	}
 	var ret string
 	for key, val := range payload {
