@@ -2,7 +2,6 @@ package utils
 
 import (
 	"os"
-	"path"
 	"testing"
 )
 
@@ -17,9 +16,6 @@ func TestCheckAndCreateFolder(t *testing.T) {
 	}
 	if err = CheckAndCreateFolder(testfolder); err != nil {
 		t.Error("Error when folder already exists")
-	}
-	if err = CheckAndCreateFolder(path.Join("/root/", testfolder)); err == nil {
-		t.Error("Should return a permission error when creating in /root/")
 	}
 	if err = os.Remove(testfolder); err != nil {
 		t.Error("Could not remove test folder")
