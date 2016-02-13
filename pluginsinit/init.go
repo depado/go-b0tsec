@@ -15,6 +15,7 @@ import (
 	_ "github.com/depado/go-b0tsec/plugins/markov"
 	_ "github.com/depado/go-b0tsec/plugins/seen"
 	_ "github.com/depado/go-b0tsec/plugins/title"
+	_ "github.com/depado/go-b0tsec/plugins/trade"
 	_ "github.com/depado/go-b0tsec/plugins/translate"
 	_ "github.com/depado/go-b0tsec/plugins/urban"
 	_ "github.com/depado/go-b0tsec/plugins/usercommand"

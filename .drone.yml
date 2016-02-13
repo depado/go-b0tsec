@@ -16,7 +16,7 @@ notify:
   irc:
     prefix: gob0tsec Build
     nick: Depadrone
-    channel: n0sec
+    channel: n0sec-bot
     server:
       host: irc.freenode.net
       port: 6667
