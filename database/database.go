@@ -10,13 +10,14 @@ import (
 // Storage is a type that contains a bolt.DB and a boolean that indicates if the connection is already open or not.
 type Storage struct {
 	DB     *bolt.DB
+	Path   string
 	Opened bool
 }
 
 // Open opens the database connection and create the file if necessary
 func (s *Storage) Open() error {
 	var err error
-	dbfile := "data.db"
+	dbfile := s.Path
 	config := &bolt.Options{Timeout: 1 * time.Second}
 	s.DB, err = bolt.Open(dbfile, 0600, config)
 	if err == nil {
@@ -125,4 +126,4 @@ func (s Storage) CreateBucket(bucket string) error {
 
 // BotStorage is the general storage associated to the bot.
 // It should be available to any plugin, middleware or any other part of the program.
-var BotStorage = Storage{}
+var BotStorage = Storage{Path: "data.db"}
