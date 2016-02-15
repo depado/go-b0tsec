@@ -11,7 +11,7 @@ type options struct {
 	VolumeSort bool
 	Source     string
 	Dest       string
-	Ammount    int
+	Ammount    float64
 	Market     string
 }
 
@@ -35,7 +35,7 @@ func parseOptions(args []string) (options, error) {
 		}
 	}
 	if len(c) == 3 {
-		if opt.Ammount, err = strconv.Atoi(args[0]); err != nil {
+		if opt.Ammount, err = strconv.ParseFloat(args[0], 64); err != nil {
 			return opt, fmt.Errorf("Wrong value of first argument : %v not a number.", c[0])
 		}
 		opt.Source = c[1]

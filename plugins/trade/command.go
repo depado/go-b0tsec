@@ -32,7 +32,7 @@ func (c *Command) Help(ib *irc.Connection, from string) {
 		return
 	}
 	ib.Privmsg(from, "Displays current crypto-currency trade market")
-	ib.Privmsg(from, "Usage : !trade [ammount] <from> <to> [--market=all|market_name] [--nomarket] [--sort=price|volume]")
+	ib.Privmsg(from, "Usage : !trade [ammount] <from> <to> [--market=all|market_name] [--sort=price|volume]")
 }
 
 // Get is the actual call to your plugin.
@@ -57,9 +57,9 @@ func (c *Command) Get(ib *irc.Connection, from string, to string, args []string)
 			return
 		}
 		if opt.Ammount == 1 {
-			ib.Privmsgf(to, "%v %s = %f %s", opt.Ammount, trade.Ticker.Base, float64(opt.Ammount)*rate, trade.Ticker.Target)
+			ib.Privmsgf(to, "%v %s = %f %s", opt.Ammount, trade.Ticker.Base, opt.Ammount*rate, trade.Ticker.Target)
 		} else {
-			ib.Privmsgf(to, "%v %s = %f %s (1 %s = %f %s)", opt.Ammount, trade.Ticker.Base, float64(opt.Ammount)*rate, trade.Ticker.Target, trade.Ticker.Base, rate, trade.Ticker.Target)
+			ib.Privmsgf(to, "%v %s = %f %s (1 %s = %f %s)", opt.Ammount, trade.Ticker.Base, opt.Ammount*rate, trade.Ticker.Target, trade.Ticker.Base, rate, trade.Ticker.Target)
 		}
 		if opt.Market != "" {
 			if opt.Market == "all" {
