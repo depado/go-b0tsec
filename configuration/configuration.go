@@ -21,7 +21,8 @@ type Configuration struct {
 	Admins               []string `yaml:"admins"`
 	GoogleAPIKey         string   `yaml:"google_api_key"`
 	YandexTrnslKey       string   `yaml:"yandex_trnsl_key"`
-	YandexDictKey        string   `yaml:"yandex_dict_key"`
+	CleverBotUser        string   `yaml:"cleverbot_user"`
+	CleverBotKey         string   `yaml:"cleverbot_key"`
 	Lang                 string   `yaml:"lang"`
 	UserCommandCharacter string   `yaml:"user_command_character"`
 }
