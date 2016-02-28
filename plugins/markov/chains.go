@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math/rand"
 	"strings"
+	"sync"
 
 	"github.com/depado/go-b0tsec/database"
 )
@@ -15,6 +16,7 @@ const PrefixLen = 2
 
 // MainChain is the chain that will be available outside the package.
 var MainChain *Chain
+var protect sync.RWMutex
 
 // Prefix is a Markov chain prefix of one or more words.
 type Prefix []string
@@ -41,11 +43,13 @@ type Chain struct {
 // Build builds the chain using the given string parameter
 func (c *Chain) Build(s string) {
 	p := make(Prefix, PrefixLen)
+	protect.Lock()
 	for _, v := range strings.Split(s, " ") {
 		key := p.String()
 		c.Chain[key] = append(c.Chain[key], v)
 		p.Shift(v)
 	}
+	protect.Unlock()
 }
 
 // Generate returns a string of at most n words generated from Chain.
