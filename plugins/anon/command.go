@@ -8,6 +8,7 @@ import (
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
+	irc "github.com/thoj/go-ircevent"
 )
 
 const (
