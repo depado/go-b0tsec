@@ -1,12 +1,14 @@
 package anon
 
 import (
+	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
-	"github.com/thoj/go-ircevent"
+	irc "github.com/thoj/go-ircevent"
 )
 
 const (
@@ -19,6 +21,7 @@ type Command struct {
 }
 
 func init() {
+	rand.Seed(time.Now().Unix())
 	plugins.Commands[command] = new(Command)
 }
 
@@ -37,7 +40,7 @@ func (c *Command) Get(ib *irc.Connection, from string, to string, args []string)
 		return
 	}
 	if len(args) > 0 {
-		ib.Privmsgf(configuration.Config.Channel, "[A] %v", strings.Join(args, " "))
+		ib.Privmsgf(configuration.Config.Channel, "[%s] %v", string(from[rand.Intn(len(from))]), strings.Join(args, " "))
 	}
 }
 
