@@ -3,7 +3,7 @@ pipeline:
     image: golang:${TAG}
     commands:
       - apt-get update
-      - apt-get install libmagic-dev
+      - apt-get install -y libmagic-dev
       - go get github.com/axw/gocov
       - go get github.com/mattn/goveralls
       - go get golang.org/x/tools/cmd/cover
