@@ -40,7 +40,8 @@ func (c *Command) Get(ib *irc.Connection, from string, to string, args []string)
 		return
 	}
 	if len(args) > 0 {
-		ib.Privmsgf(configuration.Config.Channel, "[%s] %v", string(from[rand.Intn(len(from))]), strings.Join(args, " "))
+		// string(from[rand.Intn(len(from))])
+		ib.Privmsgf(configuration.Config.Channel, "[a] %v", strings.Join(args, " "))
 	}
 }
 

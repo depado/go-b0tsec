@@ -58,6 +58,11 @@ func main() {
 		ib.Join(cnf.Channel)
 	})
 
+	// Callback on 'Invite' event
+	ib.AddCallback("INVITE", func(e *irc.Event) {
+		ib.Join(cnf.Channel)
+	})
+
 	// Callback on 'Message' event
 	ib.AddCallback("PRIVMSG", func(e *irc.Event) {
 		from := e.Nick

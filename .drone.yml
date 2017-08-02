@@ -1,25 +1,18 @@
-build:
-  image: armhfbuild/golang:$$GO_VERSION
-  commands:
-    - apt-get update
-    - apt-get install libmagic-dev
-    - go get github.com/axw/gocov
-    - go get github.com/mattn/goveralls
-    - go get golang.org/x/tools/cmd/cover
-    - go get
-    - go build
-    - go test ./...
+pipeline:
+  build:
+    image: golang:${TAG}
+    commands:
+      - apt-get update
+      - apt-get install libmagic-dev
+      - go get github.com/axw/gocov
+      - go get github.com/mattn/goveralls
+      - go get golang.org/x/tools/cmd/cover
+      - go get
+      - go build
+      - go test
 
 matrix:
-  GO_VERSION:
-    - 1.6
-    - 1.5
-
-notify:
-  irc:
-    prefix: gob0tsec Build
-    nick: Depadrone
-    channel: n0sec-bot
-    server:
-      host: irc.freenode.net
-      port: 6667
+  TAG:
+    - 1.7
+    - 1.8
+    - latest
