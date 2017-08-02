@@ -13,6 +13,5 @@ pipeline:
 
 matrix:
   TAG:
-    - 1.7
     - 1.8
     - latest
