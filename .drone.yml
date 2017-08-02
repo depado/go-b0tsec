@@ -1,3 +1,12 @@
+workspace:
+  base: /go
+  path: src/github.com/depado/go-b0tsec
+
+matrix:
+  TAG:
+    - 1.8
+    - latest
+
 pipeline:
   build:
     image: golang:${TAG}
@@ -10,8 +19,3 @@ pipeline:
       - go get
       - go build
       - go test
-
-matrix:
-  TAG:
-    - 1.8
-    - latest
