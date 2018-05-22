@@ -2,10 +2,12 @@ package main
 
 import (
 	"crypto/tls"
-	"log"
+	"fmt"
 	"strings"
 
-	flag "github.com/ogier/pflag"
+	"github.com/sirupsen/logrus"
+
+	flag "github.com/spf13/pflag"
 	"github.com/thoj/go-ircevent"
 
 	"github.com/depado/go-b0tsec/configuration"
@@ -28,12 +30,12 @@ func main() {
 	configuration.Load()
 
 	if err = cleverbot.Clever.Initialize(); err != nil {
-		log.Fatal(err)
+		logrus.WithError(err).Fatal("Couldn't connect cleverbot")
 	}
 
 	// Storage initialization and defering Close
 	if err := database.BotStorage.Open(); err != nil {
-		log.Fatalf("something went wrong with the databse : %v", err)
+		logrus.WithError(err).Fatal("Couldn't connect to the database")
 	}
 	defer database.BotStorage.Close()
 
@@ -50,11 +52,16 @@ func main() {
 		}
 	}
 	if err = ib.Connect(cnf.Server); err != nil {
-		log.Fatal(err)
+		logrus.WithError(err).Fatal("Couldn't connect to IRC server")
 	}
 
 	// Callback on 'Connected' event
 	ib.AddCallback("001", func(e *irc.Event) {
+		ib.Join(cnf.Channel)
+	})
+
+	// Callback on 'Invite' event
+	ib.AddCallback("INVITE", func(e *irc.Event) {
 		ib.Join(cnf.Channel)
 	})
 
@@ -74,7 +81,11 @@ func main() {
 				command := splitted[0]
 				args := splitted[1:]
 				if p, ok := plugins.Commands[command]; ok {
+					if command == "anon" {
+						fmt.Println("That's the anon command")
+					}
 					p.Get(ib, from, to, args)
+					fmt.Println("Done !")
 				}
 			}
 		}

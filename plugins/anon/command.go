@@ -3,12 +3,12 @@ package anon
 import (
 	"math/rand"
 	"strings"
-	"time"
+
+	"github.com/thoj/go-ircevent"
 
 	"github.com/depado/go-b0tsec/configuration"
 	"github.com/depado/go-b0tsec/plugins"
 	"github.com/depado/go-b0tsec/utils"
-	irc "github.com/thoj/go-ircevent"
 )
 
 const (
@@ -21,7 +21,6 @@ type Command struct {
 }
 
 func init() {
-	rand.Seed(time.Now().Unix())
 	plugins.Commands[command] = new(Command)
 }
 
